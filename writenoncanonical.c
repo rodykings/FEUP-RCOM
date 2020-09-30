@@ -72,14 +72,21 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
-    printf("Write whatever you want:");
+    printf("Write whatever you want: ");
     fgets(buf, 255, stdin);
+
+    int nchar = 0;
+    for(int i=0; i < 256; i++){
+      if(buf[i]=='\0'){
+        nchar = i;
+        break;
+      }
+        
+    }
+  
     
-    /*testing*/
-    buf[25] = '\n';
-    
-    res = write(fd,buf,255);   
-    printf("%d bytes written\n", res);
+    res = write(fd,buf,nchar);   
+    printf("%d characters written\n", nchar);
  
 
   /* 
