@@ -12,7 +12,14 @@
 #define FALSE 0
 #define TRUE 1
 
+
+#define FLAG 0x01111110;
+#define A_EM_REC_CMD 0x03;
+#define A_REC_EM_CMD 0x01;
+
 volatile int STOP=FALSE;
+
+typedef enum {START, FLAG_RCV, A_RCV, C_RCV, BCC_OK, STOP_UA} UA_State_Machine;
 
 int main(int argc, char** argv)
 {
@@ -51,17 +58,13 @@ int main(int argc, char** argv)
     /* set input mode (non-canonical, no echo,...) */
     newtio.c_lflag = 0;
 
-    newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-    newtio.c_cc[VMIN]     = 1;   /* blocking read until 1 chars received */
-
-
+    newtio.c_cc[VTIME] = 0;   /* inter-character timer unused */
+    newtio.c_cc[VMIN] = 1;   /* blocking read until 1 chars received */
 
   /* 
     VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
     leitura do(s) pr�ximo(s) caracter(es)
   */
-
-
 
     tcflush(fd, TCIOFLUSH);
 
@@ -84,8 +87,23 @@ int main(int argc, char** argv)
         
     }
   
+    /*Aqui temos que enviar a mensagem no formato FLAG A C BCC FLAG*/
+    /*nao estou a ver como se envia XD*/
+
+    unsigned char set[5];
+    set[0] = FLAG;
+    set[1] = A_EM_REC_CMD;
+    set[2] = C;
+    set[3] = A_EM_REC_CMD ^ C;
+    set[4] = FLAG;
     
-    res = write(fd,buf,nchar);   
+    //O BCC É O OU LÓGICO ENTRE O A E O C 
+    //NAO ESTOU A ENCONTRAR O VALOR DE C :(
+    //tmbém não, vou ver se alguém sabe e me consegue explicar!!
+
+    res = write(fd,set,8);
+    
+    //res = write(fd,buf,nchar);   
     printf("%d characters written\n", nchar);
  
 
@@ -99,9 +117,6 @@ int main(int argc, char** argv)
       perror("tcsetattr");
       exit(-1);
     }
-
-
-
 
     close(fd);
     return 0;
