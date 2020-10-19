@@ -13,9 +13,10 @@
 #define TRUE 1
 
 
-#define FLAG 0x01111110;
-#define A_EM_REC_CMD 0x03;
-#define A_REC_EM_CMD 0x01;
+#define FLAG 0x7E
+#define A_EM_REC_CMD 0x03
+#define A_REC_EM_CMD 0x01
+#define C_SETUP 0x03
 
 volatile int STOP=FALSE;
 
@@ -75,8 +76,6 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
-    printf("Write whatever you want: ");
-    fgets(buf, 255, stdin);
 
     int nchar = 0;
     for(int i=0; i < 256; i++){
@@ -93,15 +92,21 @@ int main(int argc, char** argv)
     unsigned char set[5];
     set[0] = FLAG;
     set[1] = A_EM_REC_CMD;
-    set[2] = C;
-    set[3] = A_EM_REC_CMD ^ C;
+    set[2] = C_SETUP;
+    set[3] = (A_EM_REC_CMD || C_SETUP);
     set[4] = FLAG;
     
     //O BCC É O OU LÓGICO ENTRE O A E O C 
     //NAO ESTOU A ENCONTRAR O VALOR DE C :(
     //tmbém não, vou ver se alguém sabe e me consegue explicar!!
+    
+    
+    res = write(fd,set,6);
+  
+    //printf("%x\n", set[0]);
 
-    res = write(fd,set,8);
+    //res = write(fd, set[0], 8);
+    
     
     //res = write(fd,buf,nchar);   
     printf("%d characters written\n", nchar);

@@ -11,7 +11,13 @@
 #define FALSE 0
 #define TRUE 1
 
+#define FLAG 0x7e
+#define A 0x03
+#define C 0x03
+
 volatile int STOP=FALSE;
+
+typedef enum {START, FLAG_RCV, A_RCV, C_RCV, BCC_OK, STOP_UA} UA_State_Machine;
 
 int main(int argc, char** argv)
 {
@@ -50,13 +56,13 @@ int main(int argc, char** argv)
     newtio.c_lflag = 0;
 
     newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-    newtio.c_cc[VMIN]     = 5;   /* blocking read until 5 chars received */
+    newtio.c_cc[VMIN]     = 1;   /* blocking read until 5 chars received */
 
 
 
   /* 
     VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
-    leitura do(s) próximo(s) caracter(es)
+    leitura do(s) prï¿½ximo(s) caracter(es)
   */
 
 
@@ -71,17 +77,69 @@ int main(int argc, char** argv)
     printf("New termios structure set\n");
 
 
+    UA_State_Machine state = START;
+
+    res = read(fd,buf,1);   /* returns after 1 chars have been input */
     while (STOP==FALSE) {       /* loop for input */
-      res = read(fd,buf,255);   /* returns after 5 chars have been input */
-      buf[res]=0;               /* so we can printf... */
-      printf(":%s:%d\n", buf, res);
-      if (buf[0]=='z') STOP=TRUE;
+      printf("STATE: %d\n", state);
+      switch(state){
+        case START:
+          if(buf[0] == FLAG){
+            state = FLAG_RCV;
+          }
+          res = read(fd,buf,1); //reads next char  
+          break;
+        case FLAG_RCV:
+          if(buf[0] == A)
+          {
+            state = A_RCV;
+          }
+          else if(buf[0] == FLAG){
+            state = FLAG_RCV;
+          }
+          else state = START;
+          res = read(fd,buf,1);   
+          break;
+        case A_RCV:
+          if(buf[0] == C)
+          {
+            state = C_RCV;
+          }
+          else if(buf[0] == FLAG){
+            state = FLAG_RCV;
+          }
+          else state = START;
+          res = read(fd,buf,1);   
+          break;
+        case C_RCV:
+          if(buf[0] == (A || C))
+          {
+            state = BCC_OK;
+          }
+          else if(buf[0] == FLAG){
+            state = FLAG_RCV;
+          }
+          else state = START;
+          res = read(fd,buf,1);   
+          break;
+        case BCC_OK:
+          if(buf[0] == FLAG){
+            state = STOP_UA;
+          }
+          else state = START;
+          break;
+        case STOP_UA:
+          printf("TRAMA CORRETA\n");
+          STOP = TRUE;
+      }
     }
+
+    
 
 
 
   /* 
-    O ciclo WHILE deve ser alterado de modo a respeitar o indicado no guião 
+    O ciclo WHILE deve ser alterado de modo a respeitar o indicado no guiï¿½o 
   */
 
 
