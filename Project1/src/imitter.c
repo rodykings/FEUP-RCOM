@@ -15,53 +15,53 @@ void sendControlMsg(int fd, unsigned char control_field)
     write(fd, set, 5);
 }
 
-void stateMachineUA(UA_State_Machine state, unsigned char c)
+void stateMachineUA(UA_State_Machine *state, unsigned char c)
 {
 
-    switch (state)
+    switch (*state)
     {
     case START:
-        if (c == FLAG)
-            state = FLAG_RCV;
+        if (c == FLAG){
+            *state = FLAG_RCV;
+        }
         break;
     case FLAG_RCV:
         if (c == A)
-            state = A_RCV;
+            *state = A_RCV;
         else
         {
             if (c == FLAG)
-                state = FLAG_RCV;
+                *state = FLAG_RCV;
             else
-                state = START;
+                *state = START;
         }
         break;
     case A_RCV:
         if (c == C_UA)
-            state = C_RCV;
+           *state = C_RCV;
         else
         {
             if (c == FLAG)
-                state = FLAG_RCV;
+                *state = FLAG_RCV;
             else
-                state = START;
+                *state = START;
         }
         break;
     case C_RCV:
         if (c == (A || C_UA)) //BCC = A ^ C
-            state = BCC_OK;
+            *state = BCC_OK;
         else
-            state = START;
+            *state = START;
         break;
     case BCC_OK:
         if (c == FLAG)
         {
-            state = STOP;
+            *state = STOP;
             STOP_UA_MACHINE = TRUE;
-            alarm(0); // Scheduled alarm after 0 seconds
             printf("Recebeu trama UA\n");
         }
         else
-            state = START;
+            *state = START;
         break;
     }
 }
@@ -105,6 +105,7 @@ int LLOPEN(int fd)
     do
     {
         sendControlMsg(fd, C_SET);
+        printf("Trama SET enviada\n");
 
         alarm_flag = FALSE;
         alarm(TIMEOUT);
@@ -113,7 +114,7 @@ int LLOPEN(int fd)
         while (!STOP_UA_MACHINE && !alarm_flag)
         {
             read(fd, &c, 1);
-            stateMachineUA(state, c);
+            stateMachineUA(&state, c);
         }
     } while (alarm_flag && num_retry < MAX_RETRY);
 
@@ -125,13 +126,14 @@ int LLOPEN(int fd)
     {
         alarm_flag = FALSE;
         num_retry = 0;
+        printf("\nProtocol connection established!");
         return TRUE;
     }
 }
 
 void alarmHandler()
 {
-    printf("Alarm: %d", num_retry + 1);
+    printf("\nAlarm: %d", num_retry + 1);
     alarm_flag = TRUE;
     num_retry++;
 }
@@ -160,12 +162,14 @@ int main(int argc, char **argv)
     }
 
     // Register signal handler
+    //Enquanto não exceder o número de tentativas enviar até receber resposta
     (void)signal(SIGALRM, alarmHandler);
 
-    //TODO -> iniciar relógio antes de efetuar a ligação entre o emissor e o recetor
-
-    if (!LLOPEN(fd))
+    if (!LLOPEN(fd)){
+        printf("\nCommunication protocol failed after %d tries!", MAX_RETRY);
         return -1;
+    }
+        
 
     close(fd);
     return 0;

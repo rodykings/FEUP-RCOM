@@ -35,7 +35,7 @@ typedef enum
 } UA_State_Machine;
 
 void sendControlMsg(int fd, unsigned char control_field);
-void stateMachineUA(UA_State_Machine state, unsigned char c);
+void stateMachineUA(UA_State_Machine *state, unsigned char c);
 int LLOPEN(int fd);
 void alarmHandler();
 int main(int argc, char **argv);

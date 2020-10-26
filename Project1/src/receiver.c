@@ -8,9 +8,6 @@ int receiveControlMsg(int fd, unsigned char control_field)
     while (state != STOP)
     {
         read(fd, &c, 1); /* returns after 1 chars have been input */
-
-        printf("STATE: %d\n", state);
-
         switch (state)
         {
         case START:
@@ -107,7 +104,6 @@ void LLOPEN(int fd)
 
     if (receiveControlMsg(fd, C_SET))
     {
-        printf("Trama SET recebida\n");
         sendControlMsg(fd, C_UA);
         printf("Trama UA enviada\n");
     }
