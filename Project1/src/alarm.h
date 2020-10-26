@@ -1,8 +1,13 @@
+#pragma once
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
 
-#define MAX_RETRY 4
+#define TRUE 1
+#define FALSE 0
 
-void alarmHandler(int signal);
+extern int numRetry;
+extern int alarmFlag;
+
+void alarmHandler();

@@ -1,8 +1,6 @@
-app: imitter receiver
-imitter: imitter.c
-	gcc -w imitter.c -o imitter
+application: app
+app: app.c
+	gcc app.c receiver.c transmitter.c alarm.c protocol.c utils.c -o app
 
-receiver: receiver.c
-	gcc -w receiver.c -o receiver
 clean:
-	rm -f imitter.o receiver.o receiver imitter  
+	rm -f app.o app  
