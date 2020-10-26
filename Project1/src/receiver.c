@@ -48,7 +48,7 @@ int receiveControlMsg(int fd, unsigned char control_field)
         case BCC_OK:
             if (c == FLAG)
             {
-                printf("TRAMA CORRETA\n");
+                printf("Recebeu trama SET\n");
                 state = STOP;
             }
             else
