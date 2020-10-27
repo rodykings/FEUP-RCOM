@@ -38,3 +38,27 @@ int setTransmitter(int fd)
         return TRUE;
     }
 }
+
+
+int sendControlPackage(int fd, int fileSize, char* fileName){
+
+
+   int sizePath = sizeof(fileName);
+   int packageSize = 8*5 + sizePath + fileSize;
+
+    int pos = 0;
+
+   unsigned char controlPackage[packageSize];
+
+   controlPackage[pos++] = C_START;
+   controlPackage[pos++] = T1;
+   controlPackage[pos++] = fileSize;
+
+/*
+	for (unsigned int i = 0; i < strlen(fileSize); i++)
+		controlPackage[pos++] = char(fileSize[i]);
+
+    write(fd, &controlPackage, packageSize);
+*/
+    return 0;
+}

@@ -15,7 +15,7 @@
 #define C_UA 0x07
 
 #define MAX_RETRY 5
-
+#define MAX_SIZE 256
 
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 /* POSIX compliant source */

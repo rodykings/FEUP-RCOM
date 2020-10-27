@@ -55,6 +55,35 @@ int llopen(int fd, int status)
     return 0;
 }
 
+int llwrite(int fd, char *filename){
+    int file = open(filename, O_RDONLY);
+
+    int size = lseek(file, 0, SEEK_END);
+    
+
+
+    char* buffer[MAX_SIZE];
+
+    //Cálculo nr tramas
+    int nTramas = size/256;
+    if(size % 256 != 0){
+        nTramas++;
+    }
+
+    //Envia trama de controlo
+    sendControlPackage(fd, file, size);
+
+
+    //Espera pelo Aknowledge
+
+
+    //Lê informação do ficheiro até ao fim
+    for(int i = 0; i < nTramas; i++){
+        read(file, &buffer, MAX_SIZE);
+        
+    }*/
+}
+
 void llclose(int fd)
 {
 
