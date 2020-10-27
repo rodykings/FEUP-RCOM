@@ -16,5 +16,6 @@ extern int numRetry;
 extern int alarmFlag;
 
 int setTransmitter(int fd);
-int sendControlPackage(int fd, int fileSize, char* fileName);
-int sendDataPackage(int fd, int n, int l1, int l2, char* buffer);
+void sendControlPackage(int fd, char* controlPackage, int size, int s);
+char* generateControlPackage(int fileSize, char *fileName);
+char* generateDataPackage(int n, int l1, int l2, char* buffer);

@@ -6,9 +6,9 @@ void sendControlMsg(int fd, unsigned char controlField)
 {
     unsigned char msg[5];
     msg[0] = FLAG;
-    msg[1] = A;
+    msg[1] = A_TRM;
     msg[2] = controlField;
-    msg[3] = (A || controlField);
+    msg[3] = (A_TRM || controlField);
     msg[4] = FLAG;
     write(fd, msg, 5);
 }
@@ -25,7 +25,7 @@ void stateMachine(int *state, unsigned char c, char controlField)
         }
         break;
     case FLAG_RCV:
-        if (c == A)
+        if (c == A_TRM)
             *state = A_RCV;
         else
         {
@@ -47,7 +47,7 @@ void stateMachine(int *state, unsigned char c, char controlField)
         }
         break;
     case C_RCV:
-        if (c == (A || controlField)) //BCC = A ^ C
+        if (c == (A_TRM || controlField)) //BCC = A_TRM ^ C
             *state = BCC_OK;
         else
             *state = START;
@@ -73,18 +73,33 @@ unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size){
     return BCC2;
 }
 
-char* stuffingData(char* buffer, int size){
-    char* stuffedBuffer;
+
+//Ao passarmos um buffer unstuffed e o seu tamanho calcula tamanho do bufferStuffed
+int calculateSize(char* buffer, int size){
+    int counter = 0;
+
+    for(int i=0; i<size; i++){
+        if(buffer[i] == 0x7e){
+            counter++;
+        }else if(buffer[i] == 0x7d){
+            counter++;
+        }
+        counter++;
+    }
+    return counter;
+}
+
+char* stuffingData(char* buffer, int sizeWithStuffing){
     
-    for(int i=0; i < size; i++){
+    char stuffedBuffer[sizeWithStuffing];
+
+    for(int i=0; i < sizeWithStuffing; i++){
         if(buffer[i] == FLAG){
-            stuffedBuffer = (unsigned char *)realloc(stuffedBuffer, ++size);
             stuffedBuffer[i] = ESCAPEMENT;
             stuffedBuffer[i+1] = REPLACE_FLAG;
             i = i+2;
         }
         else if(stuffedBuffer[i] == ESCAPEMENT){
-            stuffedBuffer = (unsigned char *)realloc(stuffedBuffer, ++size);
             stuffedBuffer[i] = ESCAPEMENT;
             stuffedBuffer[i+1] = REPLACE_ESCAPEMENT;
             i = i+2;
@@ -94,7 +109,9 @@ char* stuffingData(char* buffer, int size){
             i = i+1;
         }
     }
-    return stuffedBuffer;
+
+    char* sb = stuffedBuffer;
+    return sb;
 
 }
 void unstuffingData(char* buffer, int size){
