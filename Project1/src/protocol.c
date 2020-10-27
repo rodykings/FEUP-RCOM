@@ -71,7 +71,7 @@ int llwrite(int fd, char *filename){
     }
 
     //Envia trama de controlo
-    sendControlPackage(fd, file, size);
+    sendControlPackage(fd, size, filename);
 
 
     //Espera pelo Aknowledge
@@ -81,7 +81,7 @@ int llwrite(int fd, char *filename){
     for(int i = 0; i < nTramas; i++){
         read(file, &buffer, MAX_SIZE);
         
-    }*/
+    }
 }
 
 void llclose(int fd)

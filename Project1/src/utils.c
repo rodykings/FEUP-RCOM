@@ -63,3 +63,42 @@ void stateMachine(int *state, unsigned char c, char controlField)
         break;
     }
 }
+
+unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size){
+    unsigned char BCC2 = 0;
+    
+    for(unsigned int i=0;i<size;i++){
+        BCC2 |= buffer[i];
+    }
+    return BCC2;
+}
+
+char* stuffingData(char* buffer, int size){
+    char* stuffedBuffer;
+    
+    for(int i=0; i < size; i++){
+        if(buffer[i] == FLAG){
+            stuffedBuffer = (unsigned char *)realloc(stuffedBuffer, ++size);
+            stuffedBuffer[i] = ESCAPEMENT;
+            stuffedBuffer[i+1] = REPLACE_FLAG;
+            i = i+2;
+        }
+        else if(stuffedBuffer[i] == ESCAPEMENT){
+            stuffedBuffer = (unsigned char *)realloc(stuffedBuffer, ++size);
+            stuffedBuffer[i] = ESCAPEMENT;
+            stuffedBuffer[i+1] = REPLACE_ESCAPEMENT;
+            i = i+2;
+        }
+        else{
+            stuffedBuffer[i] = buffer[i];
+            i = i+1;
+        }
+    }
+    return stuffedBuffer;
+
+}
+void unstuffingData(char* buffer, int size){
+
+    
+}
+

@@ -14,6 +14,11 @@
 #define C_SET 0x03
 #define C_UA 0x07
 
+//Stuffing macros
+#define ESCAPEMENT 0x7D
+#define REPLACE_FLAG 0x5E
+#define REPLACE_ESCAPEMENT 0x5D
+
 #define MAX_RETRY 5
 #define MAX_SIZE 256
 
@@ -33,3 +38,6 @@ typedef enum {
 
 void sendControlMsg(int fd, unsigned char controlField);
 void stateMachine(int *state, unsigned char c, char controlField);
+char* stuffingData(char* buffer, int size);
+void unstuffingData(char* buffer, int size);
+unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size);

@@ -13,4 +13,4 @@ void setReceiver(int fd)
     printf("Trama SET recebida\n");
     sendControlMsg(fd, C_UA);
     printf("Trama UA enviada\n");
-}
+} 

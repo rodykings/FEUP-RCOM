@@ -39,26 +39,56 @@ int setTransmitter(int fd)
     }
 }
 
+int sendControlPackage(int fd, int fileSize, char *fileName)
+{
+    int sizeFileName = sizeof(fileName);
+    int packageSize = 5 + sizeFileName + sizeof(fileSize);
 
-int sendControlPackage(int fd, int fileSize, char* fileName){
+    printf("CONTROL PACKAGE SIZE: %d", packageSize);
 
+    unsigned char controlPackage[packageSize];
 
-   int sizePath = sizeof(fileName);
-   int packageSize = 8*5 + sizePath + fileSize;
+    /* controlPackage = [C,T1,L1,V1,T2,L2,V2]
+    * C = 2 (start) || C=3 (end)
+    * T = 0 (tamanho ficheiro) || T = 1(nome ficheiro)
+    * L = tamanho campo V
+    * V = valor
+    */
 
-    int pos = 0;
-
-   unsigned char controlPackage[packageSize];
-
-   controlPackage[pos++] = C_START;
-   controlPackage[pos++] = T1;
-   controlPackage[pos++] = fileSize;
-
-/*
-	for (unsigned int i = 0; i < strlen(fileSize); i++)
-		controlPackage[pos++] = char(fileSize[i]);
+    controlPackage[0] = C_START;
+    controlPackage[1] = T1; //file size
+    controlPackage[2] = L1;
+    controlPackage[3] = (fileSize >> 24) & 0xFF;
+    controlPackage[4] = (fileSize >> 16) & 0xFF;
+    controlPackage[5] = (fileSize >> 8) & 0xFF;
+    controlPackage[6] = fileSize & 0xFF;
+    controlPackage[7] = T2; //filename
+    controlPackage[8] = sizeFileName;
+    for (int i = 0; i < sizeFileName; i++)
+    {
+        controlPackage[9 + i] = fileName[i];
+    }
 
     write(fd, &controlPackage, packageSize);
-*/
+
     return 0;
+}
+
+int sendDataPackage(int fd, int n, int l1, int l2, char *buffer)
+{
+    int size = 4 + 256;
+
+    if (l1 == n)
+    {
+        size = 4 + l2;
+    }
+
+    char dataPackage[size];
+
+    dataPackage[0] = C_DATA;
+    dataPackage[1] = l1;
+    dataPackage[2] = l2;
+    //dataPackage[3] = buffer;
+
+    write(fd, &dataPackage, size);
 }
