@@ -2,17 +2,12 @@
 
 void setReceiver(int fd)
 {
-    unsigned char c;
-    int state = START;
 
-    while (state != STOP)
-    {
-        read(fd, &c, 1); /* returns after 1 chars have been input */
-        stateMachine(&state, c, C_SET);
-    }
-    printf("Trama SET recebida\n");
+    stateMachine(fd, C_SET, S);
+    
+    printf("\nTrama SET recebida\n");
     sendControlMsg(fd, C_UA);
-    printf("Trama UA enviada\n");
+    printf("\nTrama UA enviada\n");
 } 
 
 int receiveControlPackage(int fd){

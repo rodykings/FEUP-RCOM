@@ -32,9 +32,9 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    //llopen(fd, status);
+    llopen(fd, status);
     
-    llwrite(fd, argv[3]);
+    //llwrite(fd, argv[3]);
     //
 
     return 0;

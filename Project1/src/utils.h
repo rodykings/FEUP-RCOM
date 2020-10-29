@@ -9,6 +9,10 @@
 #include <strings.h>
 #include <string.h>
 
+#define I 1 
+#define S 0
+
+
 #define FLAG 0x7E
 #define A_TRM 0x03
 #define A_REC 0x01
@@ -21,7 +25,7 @@
 #define REPLACE_ESCAPEMENT 0x5D
 
 #define MAX_RETRY 5
-#define MAX_SIZE 256
+#define MAX_SIZE 1024
 
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
@@ -38,7 +42,7 @@ typedef enum {
 } State_Machine;
 
 void sendControlMsg(int fd, unsigned char controlField);
-void stateMachine(int *state, unsigned char c, char controlField);
+void stateMachine(int fd, char controlField, int type);
 char* stuffingData(char* buffer, int sizeWithStuffing);
 void unstuffingData(char* buffer, int size);
 int calculateSize(char* buffer, int size);

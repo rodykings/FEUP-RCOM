@@ -13,16 +13,13 @@ int setTransmitter(int fd)
     do
     {
         sendControlMsg(fd, C_SET);
-        printf("Trama SET enviada\n");
+        printf("\nTrama SET enviada\n");
 
         alarmFlag = FALSE;
         alarm(TIMEOUT);
 
-        while (state != STOP && !alarmFlag)
-        {
-            read(fd, &c, 1);
-            stateMachine(&state, c, C_UA);
-        }
+        stateMachine(fd, C_UA, S);
+
     } while (alarmFlag && numRetry < MAX_RETRY);
 
     //Comunicação falha após atingir o número máximo de tentativas
@@ -31,7 +28,7 @@ int setTransmitter(int fd)
 
     else
     {
-        printf("Trama UA recebida\n");
+        printf("\nTrama UA recebida\n");
         alarmFlag = FALSE;
         numRetry = 0;
         printf("\nProtocol connection established!\n");
@@ -39,43 +36,48 @@ int setTransmitter(int fd)
     }
 }
 
-void sendControlPackage(int fd, char* controlPackage, int size, unsigned char bcc2, int s){
+void sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc2, int s)
+{
 
-/*
+    /*
  *  Trama I : FLAG | A | C | BCC1 | Dados (pacote controlo) | BCC2 | FLAG 
  */
 
-    int bufferSize = size +6;
+    int bufferSize = size + 6;
     char buffer[bufferSize];
 
     int counter = 0;
     buffer[counter++] = FLAG;
     buffer[counter++] = A_TRM;
-    if(s==0){
+    if (s == 0)
+    {
         buffer[counter++] = 0x0;
-    }else{
+    }
+    else
+    {
         buffer[counter++] = 0x40;
     }
     buffer[counter++] = buffer[1] || buffer[2]; //bcc
 
     //SEND CONTROL PACKAGE HERE
-    for(int i=0; i<size; i++){
+    for (int i = 0; i < size; i++)
+    {
         buffer[counter++] = controlPackage[i];
     }
 
     buffer[counter++] = bcc2; //bcc2;
     buffer[counter++] = FLAG;
 
-    write(fd,&buffer,bufferSize);
-    printf("%x\n",buffer[0]);   //flag
-    printf("%x\n",buffer[1]);   //a
-    printf("%x\n",buffer[2]);   //c
-    printf("%x\n",buffer[3]);   //bcc
-    printf("%x\n",buffer[bufferSize-2]);    //bcc2
-    printf("%x\n",buffer[bufferSize-1]);    //flag
+    write(fd, &buffer, bufferSize);
+    printf("%x\n", buffer[0]);              //flag
+    printf("%x\n", buffer[1]);              //a
+    printf("%x\n", buffer[2]);              //c
+    printf("%x\n", buffer[3]);              //bcc
+    printf("%x\n", buffer[bufferSize - 2]); //bcc2
+    printf("%x\n", buffer[bufferSize - 1]); //flag
 }
 
-char* generateControlPackage(int fileSize, char *fileName)
+char *generateControlPackage(int fileSize, char *fileName)
 {
     int sizeFileName = sizeof(fileName);
     int packageSize = 5 + sizeFileName + sizeof(fileSize);
@@ -105,11 +107,11 @@ char* generateControlPackage(int fileSize, char *fileName)
         controlPackage[9 + i] = fileName[i];
     }
 
-    char* cp = controlPackage;
+    char *cp = controlPackage;
     return cp;
 }
 
-char* generateDataPackage(int n, int l1, int l2, char *buffer)
+char *generateDataPackage(int n, int l1, int l2, char *buffer)
 {
     int size = 4 + 256;
 
@@ -124,8 +126,7 @@ char* generateDataPackage(int n, int l1, int l2, char *buffer)
     dataPackage[1] = l1;
     dataPackage[2] = l2;
     //dataPackage[3] = buffer;
-    
 
-    char* dp = dataPackage;
+    char *dp = dataPackage;
     return dp;
 }

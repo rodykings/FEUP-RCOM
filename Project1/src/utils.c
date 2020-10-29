@@ -1,6 +1,7 @@
 #include "utils.h"
 
 int STOP_MACHINE = 0;
+extern int alarmFlag;
 
 void sendControlMsg(int fd, unsigned char controlField)
 {
@@ -13,54 +14,65 @@ void sendControlMsg(int fd, unsigned char controlField)
     write(fd, msg, 5);
 }
 
-void stateMachine(int *state, unsigned char c, char controlField)
+void stateMachine(int fd, char controlField, int type)
 {
 
-    switch (*state)
-    {
-    case START:
-        if (c == FLAG)
-        {
-            *state = FLAG_RCV;
+    State_Machine state = START;
+    char message[MAX_SIZE];
+    unsigned char c;
+    int counter = 0;
+
+
+    while(state != STOP && !alarmFlag){
+
+        read(fd, &c, 1);
+
+        switch (state){
+            case START:
+                if (c == FLAG)
+                {
+                    state = FLAG_RCV;
+                }
+                break;
+            case FLAG_RCV:
+                if (c == A_TRM)
+                    state = A_RCV;
+                else
+                {
+                    if (c == FLAG)
+                        state = FLAG_RCV;
+                    else
+                        state = START;
+                }
+                break;
+            case A_RCV:
+                if (c == controlField)
+                    state = C_RCV;
+                else
+                {
+                    if (c == FLAG)
+                        state = FLAG_RCV;
+                    else
+                        state = START;
+                }
+                break;
+            case C_RCV:
+                if (c == (A_TRM || controlField)) //BCC = A_TRM ^ C
+                    state = BCC_OK;
+                else
+                    state = START;
+                break;
+            case BCC_OK:
+                if (c == FLAG)
+                {
+                    state = STOP;
+                    STOP_MACHINE = 1;
+                }
+                else
+                    state = START;
+                break;
         }
-        break;
-    case FLAG_RCV:
-        if (c == A_TRM)
-            *state = A_RCV;
-        else
-        {
-            if (c == FLAG)
-                *state = FLAG_RCV;
-            else
-                *state = START;
-        }
-        break;
-    case A_RCV:
-        if (c == controlField)
-            *state = C_RCV;
-        else
-        {
-            if (c == FLAG)
-                *state = FLAG_RCV;
-            else
-                *state = START;
-        }
-        break;
-    case C_RCV:
-        if (c == (A_TRM || controlField)) //BCC = A_TRM ^ C
-            *state = BCC_OK;
-        else
-            *state = START;
-        break;
-    case BCC_OK:
-        if (c == FLAG)
-        {
-            *state = STOP;
-            STOP_MACHINE = 1;
-        }
-        else
-            *state = START;
-        break;
+        message[counter++] = c;
     }
 }
 
