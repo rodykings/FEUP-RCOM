@@ -65,12 +65,12 @@ void stateMachine(int *state, unsigned char c, char controlField)
 }
 
 unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size){
-    unsigned char BCC2 = 0;
+    unsigned char bcc2 = 0;
     
     for(unsigned int i=0;i<size;i++){
-        BCC2 |= buffer[i];
+        bcc2 |= buffer[i];
     }
-    return BCC2;
+    return bcc2;
 }
 
 

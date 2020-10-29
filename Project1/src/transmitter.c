@@ -39,26 +39,40 @@ int setTransmitter(int fd)
     }
 }
 
-void sendControlPackage(int fd, char* controlPackage, int size, int s){
+void sendControlPackage(int fd, char* controlPackage, int size, unsigned char bcc2, int s){
 
-    char buffer[size];
+/*
+ *  Trama I : FLAG | A | C | BCC1 | Dados (pacote controlo) | BCC2 | FLAG 
+ */
+
+    int bufferSize = size +6;
+    char buffer[bufferSize];
+
     int counter = 0;
-
     buffer[counter++] = FLAG;
     buffer[counter++] = A_TRM;
     if(s==0){
         buffer[counter++] = 0x0;
     }else{
-        buffer[2] = 0x40;
+        buffer[counter++] = 0x40;
     }
-    buffer[3] = //bcc;
+    buffer[counter++] = buffer[1] || buffer[2]; //bcc
 
+    //SEND CONTROL PACKAGE HERE
     for(int i=0; i<size; i++){
-
+        buffer[counter++] = controlPackage[i];
     }
 
-    //buffer[3]
+    buffer[counter++] = bcc2; //bcc2;
+    buffer[counter++] = FLAG;
 
+    write(fd,&buffer,bufferSize);
+    printf("%x\n",buffer[0]);   //flag
+    printf("%x\n",buffer[1]);   //a
+    printf("%x\n",buffer[2]);   //c
+    printf("%x\n",buffer[3]);   //bcc
+    printf("%x\n",buffer[bufferSize-2]);    //bcc2
+    printf("%x\n",buffer[bufferSize-1]);    //flag
 }
 
 char* generateControlPackage(int fileSize, char *fileName)
@@ -66,7 +80,7 @@ char* generateControlPackage(int fileSize, char *fileName)
     int sizeFileName = sizeof(fileName);
     int packageSize = 5 + sizeFileName + sizeof(fileSize);
 
-    printf("CONTROL PACKAGE SIZE: %d", packageSize);
+    printf("CONTROL PACKAGE SIZE: %d\n", packageSize);
 
     char controlPackage[packageSize];
 
@@ -110,6 +124,7 @@ char* generateDataPackage(int n, int l1, int l2, char *buffer)
     dataPackage[1] = l1;
     dataPackage[2] = l2;
     //dataPackage[3] = buffer;
+    
 
     char* dp = dataPackage;
     return dp;

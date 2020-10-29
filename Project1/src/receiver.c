@@ -14,3 +14,19 @@ void setReceiver(int fd)
     sendControlMsg(fd, C_UA);
     printf("Trama UA enviada\n");
 } 
+
+int receiveControlPackage(int fd){
+
+/*
+    int state = START;
+    unsigned char info;
+
+    do{
+        read(fd, &info, 1); 
+
+    }while(state!=STOP);
+  */  
+
+
+
+};

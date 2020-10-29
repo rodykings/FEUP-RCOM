@@ -56,11 +56,12 @@ int llopen(int fd, int status)
 }
 
 int llwrite(int fd, char *filename){
+    
     int file = open(filename, O_RDONLY);
 
     int size = lseek(file, 0, SEEK_END);
 
-    char buffer[MAX_SIZE];
+    char buffer[size];
 
     //Cálculo nr tramas
     int nTramas = size/256;
@@ -69,23 +70,33 @@ int llwrite(int fd, char *filename){
     }
 
     //Lê informação do ficheiro até ao fim
-    for(int i = 0; i < nTramas; i++){
-        read(file, &buffer, MAX_SIZE);
+    for(int i = 0; i < size; i++){
+        read(file, &buffer, size);
     }
-
-
-    int sizeStuffedBuffer = calculateSize(buffer, size);
-
     
     //Envia trama de controlo
-    sendControlPackage(fd, filename, size);
+    char* controlPackage = generateControlPackage(size, filename);
+    int sizeControlPackage = 5 + sizeof(size) + sizeof(filename);
+
+    //Calculo do BCC com informacao
+    unsigned char bcc2 = calculateBCC2(controlPackage, sizeControlPackage);
+
+    
+    //stuffing process
+    int sizeStuffedBuffer = calculateSize(controlPackage, sizeControlPackage);
+    char* stuffedControlPackage = stuffingData(controlPackage, sizeStuffedBuffer);
+
+
+    sendControlPackage(fd, stuffedControlPackage, sizeStuffedBuffer, bcc2, 0);
 
     //Espera pelo Aknowledge - máquina de estados
 
-    //Calculo do BCC com informacao 
+
 
     //Stuffing
-    stuffingData(buffer, sizeStuffedBuffer);
+    //stuffingData(buffer, sizeStuffedBuffer);
+
+    //sendData package cicle;
 
 
 
