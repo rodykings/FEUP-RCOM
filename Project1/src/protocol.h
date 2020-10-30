@@ -17,7 +17,7 @@ int llopen(int fd, int status);
  * @param length comprimento do array de caracteres
  * @return int número de caracteres escritos
  */
-int llwrite(int fd, char * filename);
+int llwrite(int fd, unsigned char * filename);
 
 /**
  * @brief 
@@ -26,4 +26,4 @@ int llwrite(int fd, char * filename);
  * @param buffer array de caracteres recebidos
  * @return int comprimento do array (número de caracteres lidos)
  */
-int llread(int fd, char* buffer);
+int llread(int fd, unsigned char* buffer);

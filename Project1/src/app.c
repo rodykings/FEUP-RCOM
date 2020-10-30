@@ -32,7 +32,7 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    //llopen(fd, status);
+    llopen(fd, status);
     
     if(status == TRANSMITTER)
         llwrite(fd, argv[3]);

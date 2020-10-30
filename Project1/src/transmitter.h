@@ -34,7 +34,7 @@ int setTransmitter(int fd);
  * @param s Value of control field - alternates between 0 and 1
  * @return int Size of control package
  */
-int sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc2, int s);
+int sendControlPackage(int fd, unsigned char *controlPackage, int size, unsigned char bcc2, int s);
 
-char* generateControlPackage(int fileSize, char *fileName);
+unsigned char* generateControlPackage(int fileSize, unsigned char *fileName);
 char* generateDataPackage(int n, int l1, int l2, char* buffer);

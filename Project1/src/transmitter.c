@@ -36,7 +36,7 @@ int setTransmitter(int fd)
     }
 }
 
-int sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc2, int s)
+int sendControlPackage(int fd, unsigned char *controlPackage, int size, unsigned char bcc2, int s)
 {
 
 /*
@@ -44,7 +44,7 @@ int sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc
  */
 
     int bufferSize = size + 6;
-    char buffer[bufferSize];
+    unsigned char buffer[bufferSize];
 
     int counter = 0;
     buffer[counter++] = FLAG;
@@ -60,6 +60,8 @@ int sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc
     buffer[counter++] = buffer[1] ^ buffer[2]; //bcc
 
     //SEND CONTROL PACKAGE HERE
+
+    printf("SIZE: %d\n", size);
     for (int i = 0; i < size; i++)
     {
         buffer[counter++] = controlPackage[i];
@@ -69,26 +71,26 @@ int sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc
     buffer[counter++] = FLAG;
 
     write(fd, &buffer, bufferSize);
- /*   printf("Flag: %x\n", buffer[0]);              //flag
+    printf("Flag: %x\n", buffer[0]);              //flag
     printf("A: %x\n", buffer[1]);              //a
     printf("C: %x\n", buffer[2]);              //c
     printf("BCC: %x\n", buffer[3]);              //bcc
     for(int i = 4; i<bufferSize-6; i++)
         printf("DATA: %x\n", buffer[i]);
     printf("BCC2: %x\n", buffer[bufferSize - 2]); //bcc2
-    printf("FLAG: %x\n", buffer[bufferSize - 1]); //flag*/
+    printf("FLAG: %x\n", buffer[bufferSize - 1]); //flag
 
     return counter;
 }
 
-char *generateControlPackage(int fileSize, char *fileName)
+unsigned char *generateControlPackage(int fileSize, unsigned char *fileName)
 {
     int sizeFileName = sizeof(fileName);
-    int packageSize = 5 + sizeFileName + sizeof(fileSize);
+    int packageSize = 5*sizeof( unsigned char) + sizeFileName + 4*sizeof( unsigned char); //C,T1,L1,L2 + sizeof(fileName) + tamanho campo filename
 
     printf("CONTROL PACKAGE SIZE: %d\n", packageSize);
 
-    char* controlPackage = malloc(sizeof(char)*packageSize);
+    unsigned char* controlPackage = (unsigned char*)(malloc(packageSize));
 
     /* controlPackage = [C,T1,L1,V1,T2,L2,V2]
     * C = 2 (start) || C=3 (end)
@@ -103,10 +105,9 @@ char *generateControlPackage(int fileSize, char *fileName)
     controlPackage[3] = (fileSize >> 24) & 0xFF;
     controlPackage[4] = (fileSize >> 16) & 0xFF;
     controlPackage[5] = (fileSize >> 8) & 0xFF;
-    char s = (char)(fileSize & 0xff);
-    //controlPackage[6] = s;
+    controlPackage[6] = (fileSize & 0xFF);
     
-    printf("BYTE: %x\n", s);
+    printf("BYTE: %x\n", (unsigned char)controlPackage[6]);
     controlPackage[7] = T2; //filename
     controlPackage[8] = sizeFileName;
     for (int i = 0; i < sizeFileName; i++)

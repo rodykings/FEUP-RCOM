@@ -55,7 +55,7 @@ int llopen(int fd, int status)
     return 0;
 }
 
-int llwrite(int fd, char *filename)
+int llwrite(int fd, unsigned char *filename)
 {
     int writtenCharacters = 0;
 
@@ -79,13 +79,13 @@ int llwrite(int fd, char *filename)
     }
 
     //Envia trama de controlo
-    char *controlPackage = generateControlPackage(size, filename);
+    unsigned char *controlPackage = generateControlPackage(size, filename);
     
     int sizeControlPackage = 5 + sizeof(size) + sizeof(filename);
     printf("Size control package: %d\n", sizeControlPackage);
-    for(int i=0; i<sizeControlPackage; i++){
-        printf(":%x\n", controlPackage[i]);
-    }
+    // for(int i=0; i<sizeControlPackage; i++){
+    //     printf(":%x\n", controlPackage[i]);
+    // }
 
     //Calculo do BCC com informacao
     unsigned char bcc2 = calculateBCC2(controlPackage, sizeControlPackage);
@@ -107,7 +107,7 @@ int llwrite(int fd, char *filename)
     return writtenCharacters;
 }
 
-int llread(int fd, char *buffer)
+int llread(int fd, unsigned char *buffer)
 {
     receiveControlPackage(fd); //TODO -> como passar o size que tem de ler na trama de controlo?
     return 0;
