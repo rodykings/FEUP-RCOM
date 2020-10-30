@@ -15,7 +15,26 @@
 extern int numRetry;
 extern int alarmFlag;
 
+/**
+ * @brief Send SET message to the receiver and
+ * receive and process UA message to establish connection with receiver
+ * 
+ * @param fd File descriptor
+ * @return int 1 to success and 0 to failure
+ */
 int setTransmitter(int fd);
-void sendControlPackage(int fd, char* controlPackage, int size, unsigned char bcc2, int s);
+
+/**
+ * @brief Sends message with control information - control package
+ * 
+ * @param fd File descriptor
+ * @param controlPackage Control Package
+ * @param size Size of control package with stuffed data
+ * @param bcc2 Value of BCC2
+ * @param s Value of control field - alternates between 0 and 1
+ * @return int Size of control package
+ */
+int sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc2, int s);
+
 char* generateControlPackage(int fileSize, char *fileName);
 char* generateDataPackage(int n, int l1, int l2, char* buffer);

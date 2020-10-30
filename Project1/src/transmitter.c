@@ -36,10 +36,10 @@ int setTransmitter(int fd)
     }
 }
 
-void sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc2, int s)
+int sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc2, int s)
 {
 
-    /*
+/*
  *  Trama I : FLAG | A | C | BCC1 | Dados (pacote controlo) | BCC2 | FLAG 
  */
 
@@ -69,12 +69,14 @@ void sendControlPackage(int fd, char *controlPackage, int size, unsigned char bc
     buffer[counter++] = FLAG;
 
     write(fd, &buffer, bufferSize);
-    printf("%x\n", buffer[0]);              //flag
-    printf("%x\n", buffer[1]);              //a
-    printf("%x\n", buffer[2]);              //c
-    printf("%x\n", buffer[3]);              //bcc
-    printf("%x\n", buffer[bufferSize - 2]); //bcc2
-    printf("%x\n", buffer[bufferSize - 1]); //flag
+    printf("Flag: %x\n", buffer[0]);              //flag
+    printf("A: %x\n", buffer[1]);              //a
+    printf("C: %x\n", buffer[2]);              //c
+    printf("BCC: %x\n", buffer[3]);              //bcc
+    printf("BCC2: %x\n", buffer[bufferSize - 2]); //bcc2
+    printf("FLAG: %x\n", buffer[bufferSize - 1]); //flag
+
+    return counter;
 }
 
 char *generateControlPackage(int fileSize, char *fileName)

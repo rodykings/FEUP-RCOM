@@ -10,18 +10,17 @@ void setReceiver(int fd)
     printf("\nTrama UA enviada\n");
 } 
 
-int receiveControlPackage(int fd){
+int receiveControlPackage(int fd, int size){
 
-/*
-    int state = START;
-    unsigned char info;
+    char buffer[size];
+   // stateMachine(fd, 0x00, S);  //TODO -> valor de S varia (S ou I alternados)
+    printf("\nTrama de controlo I recebida\n");
+   // sendControlMsg(fd, 0x00); //TODO -> C vai variar consoante o tipo de RR / REJ
 
-    do{
-        read(fd, &info, 1); 
-
-    }while(state!=STOP);
-  */  
-
-
-
+    
+    for(int i=0;i<size;i++){
+        read(fd, &buffer[i], 1);  
+        printf("Buffer: %x\n", buffer[i]);
+    }
+    return 0;
 };

@@ -34,8 +34,11 @@ int main(int argc, char **argv)
 
     llopen(fd, status);
     
-    //llwrite(fd, argv[3]);
-    //
+    if(status == TRANSMITTER)
+        llwrite(fd, argv[3]);
+    if(status == RECEIVER)
+        llread(fd, argv[3]);
+    
 
     return 0;
 }

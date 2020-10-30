@@ -55,8 +55,10 @@ int llopen(int fd, int status)
     return 0;
 }
 
-int llwrite(int fd, char *filename){
-    
+int llwrite(int fd, char *filename)
+{
+    int writtenCharacters = 0;
+
     int file = open(filename, O_RDONLY);
 
     int size = lseek(file, 0, SEEK_END);
@@ -64,51 +66,46 @@ int llwrite(int fd, char *filename){
     char buffer[size];
 
     //Cálculo nr tramas
-    int nTramas = size/256;
-    if(size % 256 != 0){
+    int nTramas = size / 256;
+    if (size % 256 != 0)
+    {
         nTramas++;
     }
 
     //Lê informação do ficheiro até ao fim
-    for(int i = 0; i < size; i++){
+    for (int i = 0; i < size; i++)
+    {
         read(file, &buffer, size);
     }
-    
+
     //Envia trama de controlo
-    char* controlPackage = generateControlPackage(size, filename);
+    char *controlPackage = generateControlPackage(size, filename);
     int sizeControlPackage = 5 + sizeof(size) + sizeof(filename);
 
     //Calculo do BCC com informacao
     unsigned char bcc2 = calculateBCC2(controlPackage, sizeControlPackage);
 
-    
     //stuffing process
     int sizeStuffedBuffer = calculateSize(controlPackage, sizeControlPackage);
-    char* stuffedControlPackage = stuffingData(controlPackage, sizeStuffedBuffer);
+    char *stuffedControlPackage = stuffingData(controlPackage, sizeStuffedBuffer);
 
-
-    sendControlPackage(fd, stuffedControlPackage, sizeStuffedBuffer, bcc2, 0);
+    writtenCharacters += sendControlPackage(fd, stuffedControlPackage, sizeStuffedBuffer, bcc2, 0);
 
     //Espera pelo Aknowledge - máquina de estados
-
-
 
     //Stuffing
     //stuffingData(buffer, sizeStuffedBuffer);
 
     //sendData package cicle;
 
+    printf("Nr caracteres escritos: %d\n", writtenCharacters);
+    return writtenCharacters;
+}
 
-
-
-
-    
-    
-
-
-    
-
-    
+int llread(int fd, char *buffer)
+{
+    receiveControlPackage(fd, 23); //TODO -> como passar o size que tem de ler na trama de controlo?
+    return 0;
 }
 
 void llclose(int fd)
