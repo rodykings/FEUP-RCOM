@@ -9,7 +9,7 @@ void sendControlMsg(int fd, unsigned char controlField)
     msg[0] = FLAG;
     msg[1] = A_TRM;
     msg[2] = controlField;
-    msg[3] = (A_TRM || controlField);
+    msg[3] = (A_TRM ^ controlField);
     msg[4] = FLAG;
     write(fd, msg, 5);
 }
@@ -26,20 +26,22 @@ void stateMachine(int fd, char controlField, int type)
     {
 
         read(fd, &c, 1);
+        if(type == I){
+            printf(":%x\n", c);
+        }
+        
 
         switch (state)
         {
         case START:
             if (c == FLAG)
             {
-                message[counter++] = c;
                 state = FLAG_RCV;
             }
             break;
         case FLAG_RCV:
             if (c == A_TRM)
             {
-                message[counter++] = c;
                 state = A_RCV;
             }
             else
@@ -53,7 +55,6 @@ void stateMachine(int fd, char controlField, int type)
         case A_RCV:
             if (c == controlField)
             {
-                message[counter++] = c;
                 state = C_RCV;
             }
             else
@@ -65,9 +66,8 @@ void stateMachine(int fd, char controlField, int type)
             }
             break;
         case C_RCV:
-            if (c == (A_TRM || controlField))
+            if (c == (A_TRM ^ controlField))
             { //BCC = A_TRM ^ C
-                message[counter++] = c;
                 state = BCC_OK;
             }
             else
@@ -76,20 +76,52 @@ void stateMachine(int fd, char controlField, int type)
         case BCC_OK:
             if (c == FLAG)
             {
-                message[counter++] = c;
                 state = STOP;
             }
-            else
-                state = START;
+            else{
+                if(type == S){
+                    state = START;
+                }else{
+                    message[counter++] = c;
+                }
+                
+            }  
             break;
         case STOP:
-            message[counter] = 0;
             STOP_MACHINE = 1;
             break;
         default:
             break;
         }
     }
+
+    if(type==I){
+        /*
+        printf("TRAMA DE DADOS\n");
+        
+        for(int i=0; i<counter; i++){
+            printf("DATA:%x\n",message[i]);
+        }
+
+        char* data = destuffingData(message, counter);
+        
+        int cnt = 0;
+        while(data[cnt]!='\0'){
+            cnt++;
+        }
+
+        printf("SIZE:%d\n",counter);
+
+        for(int i=0; i<counter; i++){
+            printf("DATA:%x\n",data[i]);
+        }
+
+        */
+        
+    }
+    
+
+
 }
 
 unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size)
@@ -98,7 +130,7 @@ unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size)
 
     for (unsigned int i = 0; i < size; i++)
     {
-        bcc2 |= buffer[i];
+        bcc2 ^= buffer[i];
     }
     return bcc2;
 }
@@ -152,6 +184,30 @@ char *stuffingData(char *buffer, int sizeWithStuffing)
     char *sb = stuffedBuffer;
     return sb;
 }
-void unstuffingData(char *buffer, int size)
+char* destuffingData(char *buffer, int size)
 {
+    int counter = 0;
+    char destuffedData[MAX_SIZE];
+
+    for(int i=0; i<size; i++){
+        if(buffer[i] == 0x7d){
+            if(buffer[i+1] == 0x5e){
+                destuffedData[counter++] = 0x7e;
+            }else if(buffer[i+1] == 0x5d){
+                destuffedData[counter++] = 0x7d;
+            }
+            i++;
+        }else {
+            destuffedData[counter++] = buffer[i];
+        }
+    }
+
+    char* db = malloc(sizeof(char)*counter);
+
+    for(int j=0; j<counter; j++){
+        db[j] = destuffedData[j];
+    }
+
+    return db;
+    
 }

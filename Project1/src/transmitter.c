@@ -57,7 +57,7 @@ int sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc
     {
         buffer[counter++] = 0x40;
     }
-    buffer[counter++] = buffer[1] || buffer[2]; //bcc
+    buffer[counter++] = buffer[1] ^ buffer[2]; //bcc
 
     //SEND CONTROL PACKAGE HERE
     for (int i = 0; i < size; i++)
@@ -69,12 +69,14 @@ int sendControlPackage(int fd, char *controlPackage, int size, unsigned char bcc
     buffer[counter++] = FLAG;
 
     write(fd, &buffer, bufferSize);
-    printf("Flag: %x\n", buffer[0]);              //flag
+ /*   printf("Flag: %x\n", buffer[0]);              //flag
     printf("A: %x\n", buffer[1]);              //a
     printf("C: %x\n", buffer[2]);              //c
     printf("BCC: %x\n", buffer[3]);              //bcc
+    for(int i = 4; i<bufferSize-6; i++)
+        printf("DATA: %x\n", buffer[i]);
     printf("BCC2: %x\n", buffer[bufferSize - 2]); //bcc2
-    printf("FLAG: %x\n", buffer[bufferSize - 1]); //flag
+    printf("FLAG: %x\n", buffer[bufferSize - 1]); //flag*/
 
     return counter;
 }
@@ -86,7 +88,7 @@ char *generateControlPackage(int fileSize, char *fileName)
 
     printf("CONTROL PACKAGE SIZE: %d\n", packageSize);
 
-    char controlPackage[packageSize];
+    char* controlPackage = malloc(sizeof(char)*packageSize);
 
     /* controlPackage = [C,T1,L1,V1,T2,L2,V2]
     * C = 2 (start) || C=3 (end)
@@ -101,16 +103,18 @@ char *generateControlPackage(int fileSize, char *fileName)
     controlPackage[3] = (fileSize >> 24) & 0xFF;
     controlPackage[4] = (fileSize >> 16) & 0xFF;
     controlPackage[5] = (fileSize >> 8) & 0xFF;
-    controlPackage[6] = fileSize & 0xFF;
+    char s = (char)(fileSize & 0xff);
+    //controlPackage[6] = s;
+    
+    printf("BYTE: %x\n", s);
     controlPackage[7] = T2; //filename
     controlPackage[8] = sizeFileName;
     for (int i = 0; i < sizeFileName; i++)
     {
         controlPackage[9 + i] = fileName[i];
     }
-
-    char *cp = controlPackage;
-    return cp;
+    
+    return controlPackage;
 }
 
 char *generateDataPackage(int n, int l1, int l2, char *buffer)

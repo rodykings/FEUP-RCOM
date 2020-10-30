@@ -41,9 +41,12 @@ typedef enum {
     STOP
 } State_Machine;
 
+
+
+
 void sendControlMsg(int fd, unsigned char controlField);
 void stateMachine(int fd, char controlField, int type);
 char* stuffingData(char* buffer, int sizeWithStuffing);
-void unstuffingData(char* buffer, int size);
+char* destuffingData(char *buffer, int size);
 int calculateSize(char* buffer, int size);
 unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size);
