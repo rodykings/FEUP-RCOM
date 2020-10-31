@@ -66,14 +66,7 @@ int llwrite(int fd, unsigned char *filename)
     int fileSize = lseek(file, 0, SEEK_END);
 
     char buffer[fileSize];
-
-    //Cálculo nr tramas
-    int nTramas = fileSize / 256;
-    if (fileSize % 256 != 0)
-    {
-        nTramas++;
-    }
-
+    
     //Lê informação do ficheiro até ao fim
     for (int i = 0; i < fileSize; i++)
     {
@@ -108,7 +101,7 @@ int llwrite(int fd, unsigned char *filename)
         if(seqN == 0){
             c_state = 0x05; //Expects positive ACK -> controlField val = 0x05 (R = 0)
         }else {
-            c_state = 0x69; //Expects positive ACK -> controlField val = 0x69 (R = 1)
+            c_state = 0x85; //Expects positive ACK -> controlField val = 0x85 (R = 1)
         }
         
         unsigned char* status = stateMachine(fd, c_state, S, size);
@@ -125,7 +118,7 @@ int llwrite(int fd, unsigned char *filename)
     } while (alarmFlag && numRetry < MAX_RETRY);
     printf("\nTrama I de controlo enviada!\n");
 
-    
+    sendData(fd, buffer, fileSize,seqN);
 
     //Stuffing
     //stuffingData(buffer, sizeStuffedBuffer);

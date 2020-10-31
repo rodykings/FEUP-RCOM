@@ -61,7 +61,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                     if (c == FLAG)
                         state = FLAG_RCV;
                     //REJ
-                    else if(c == 0x65 || c == 0x1){
+                    else if(c == 0x81 || c == 0x01){
                         return NULL;
                     }
                     else{
@@ -105,12 +105,12 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                     if(bcc == calculateBCC2(message, size)){
                         unsigned char positiveACK; // R0000101 -> 0 ou 1
 
-                        if(seqN == 1){
-                            positiveACK = 0x69;
-                        }else{
+                        if(seqN == 0){
                             positiveACK = 0x05;
+                        }else{
+                            positiveACK = 0x85;
                         }
-                        //printf("Positive ACK sent: %x\n", positiveACK);
+                        printf("Positive ACK sent: %x\n", positiveACK);
                         sendControlMsg(fd, positiveACK);
                         printf("Trama RR enviada!\n");
                     }
@@ -118,7 +118,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                         unsigned char negativeACK; // R0000001 -> 0 ou 1
 
                         if(seqN == 1){
-                            negativeACK = 0x65;
+                            negativeACK = 0x81;
                         }else{
                             negativeACK = 0x01;
                         }
