@@ -30,6 +30,8 @@
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
+#define NULL ((void *)0)
+
 struct termios oldtio, newtio;
 
 typedef enum {
@@ -45,8 +47,8 @@ typedef enum {
 
 
 void sendControlMsg(int fd, unsigned char controlField);
-void stateMachine(int fd, char controlField, int type);
-char* stuffingData(char* buffer, int sizeWithStuffing);
-char* destuffingData(char *buffer, int size);
-int calculateSize(char* buffer, int size);
-unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size);
+unsigned char* stateMachine(int fd, char controlField, int type);
+unsigned char* stuffingData(char* buffer, int* size);
+unsigned char* destuffingData(char *buffer, int *size);
+int calculateStuffedSize(char* buffer, int size);
+unsigned char calculateBCC2(const unsigned char *buffer, unsigned int* size);

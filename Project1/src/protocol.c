@@ -61,41 +61,35 @@ int llwrite(int fd, unsigned char *filename)
 
     int file = open(filename, O_RDONLY);
 
-    int size = lseek(file, 0, SEEK_END);
+    int fileSize = lseek(file, 0, SEEK_END);
 
-    char buffer[size];
+    char buffer[fileSize];
 
     //Cálculo nr tramas
-    int nTramas = size / 256;
-    if (size % 256 != 0)
+    int nTramas = fileSize / 256;
+    if (fileSize % 256 != 0)
     {
         nTramas++;
     }
 
     //Lê informação do ficheiro até ao fim
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < fileSize; i++)
     {
-        read(file, &buffer, size);
+        read(file, &buffer, fileSize);
     }
 
     //Envia trama de controlo
-    unsigned char *controlPackage = generateControlPackage(size, filename);
-    
-    int sizeControlPackage = 5 + sizeof(size) + sizeof(filename);
-    printf("Size control package: %d\n", sizeControlPackage);
-    // for(int i=0; i<sizeControlPackage; i++){
-    //     printf(":%x\n", controlPackage[i]);
-    // }
+
+    int* size = malloc(sizeof(int));
+    unsigned char *controlPackage = generateControlPackage(fileSize, filename, size);
 
     //Calculo do BCC com informacao
-    unsigned char bcc2 = calculateBCC2(controlPackage, sizeControlPackage);
+    unsigned char bcc2 = calculateBCC2(controlPackage, size);
 
-    //stuffing process
-    int sizeStuffedBuffer = calculateSize(controlPackage, sizeControlPackage);
-    char *stuffedControlPackage = stuffingData(controlPackage, sizeStuffedBuffer);
+    unsigned char *stuffedControlPackage = stuffingData(controlPackage, size);    
 
-    writtenCharacters += sendControlPackage(fd, stuffedControlPackage, sizeStuffedBuffer, bcc2, 0);
-
+    writtenCharacters += sendControlPackage(fd, stuffedControlPackage, size, bcc2, 0);
+    printf("\nControl Packaged Sent!\n");
     //Espera pelo Aknowledge - máquina de estados
 
     //Stuffing

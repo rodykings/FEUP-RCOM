@@ -1,6 +1,5 @@
 #include "utils.h"
 
-int STOP_MACHINE = 0;
 extern int alarmFlag;
 
 void sendControlMsg(int fd, unsigned char controlField)
@@ -14,22 +13,18 @@ void sendControlMsg(int fd, unsigned char controlField)
     write(fd, msg, 5);
 }
 
-void stateMachine(int fd, char controlField, int type)
+unsigned char* stateMachine(int fd, char controlField, int type)
 {
 
     State_Machine state = START;
-    char message[MAX_SIZE];
+    unsigned char* message = malloc(sizeof(char)*MAX_SIZE);
     unsigned char c;
     int counter = 0;
+    int* size = malloc(sizeof(int));
 
     while (state != STOP && !alarmFlag)
     {
-
         read(fd, &c, 1);
-        if(type == I){
-            printf(":%x\n", c);
-        }
-        
 
         switch (state)
         {
@@ -76,6 +71,25 @@ void stateMachine(int fd, char controlField, int type)
         case BCC_OK:
             if (c == FLAG)
             {
+                if(type == I){
+
+                    unsigned char bcc = message[counter-1];
+                    *size = counter-2;
+                    printf("SIZE: %d\n", *size);
+                    destuffingData(message, size);
+
+                    printf("BCC: %x\n", calculateBCC2(message, size));
+                    
+
+                    if(bcc == calculateBCC2(message, size)){
+                        
+                    }
+                    else{
+                        printf("SEND REJ MESSAGE");
+                        //send rej message
+                    }  
+                }
+
                 state = STOP;
             }
             else{
@@ -87,48 +101,28 @@ void stateMachine(int fd, char controlField, int type)
                 
             }  
             break;
-        case STOP:
-            STOP_MACHINE = 1;
-            break;
         default:
             break;
         }
-    }
-
-    if(type==I){
-        /*
-        printf("TRAMA DE DADOS\n");
-        
-        for(int i=0; i<counter; i++){
-            printf("DATA:%x\n",message[i]);
-        }
-
-        char* data = destuffingData(message, counter);
-        
-        int cnt = 0;
-        while(data[cnt]!='\0'){
-            cnt++;
-        }
-
-        printf("SIZE:%d\n",counter);
-
-        for(int i=0; i<counter; i++){
-            printf("DATA:%x\n",data[i]);
-        }
-
-        */
         
     }
-    
 
+    if(type == I){
+            unsigned char* data = malloc(sizeof(char)*(counter+1));
+            for(int i=0; i<counter; i++){
+                data[i] = message[i];
+            }return data;
+    }else{
+            return NULL;
+    }
 
 }
 
-unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size)
+unsigned char calculateBCC2(const unsigned char *buffer, unsigned int* size)
 {
     unsigned char bcc2 = 0;
 
-    for (unsigned int i = 0; i < size; i++)
+    for (unsigned int i = 0; i < (*size); i++)
     {
         bcc2 ^= buffer[i];
     }
@@ -136,7 +130,7 @@ unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size)
 }
 
 //Ao passarmos um buffer unstuffed e o seu tamanho calcula tamanho do bufferStuffed
-int calculateSize(char *buffer, int size)
+int calculateStuffedSize(char *buffer, int size)
 {
     int counter = 0;
 
@@ -155,41 +149,42 @@ int calculateSize(char *buffer, int size)
     return counter;
 }
 
-char *stuffingData(char *buffer, int sizeWithStuffing)
+unsigned char *stuffingData(char *buffer, int* size)
 {
 
-    char stuffedBuffer[sizeWithStuffing];
+    int counter = 0;
+    unsigned char stuffedBuffer[MAX_SIZE];
 
-    for (int i = 0; i < sizeWithStuffing; i++)
+    for (int i = 0; i < (*size); i++)
     {
         if (buffer[i] == FLAG)
         {
-            stuffedBuffer[i] = ESCAPEMENT;
-            stuffedBuffer[i + 1] = REPLACE_FLAG;
-            i = i + 2;
+            stuffedBuffer[counter++] = ESCAPEMENT;
+            stuffedBuffer[counter++] = REPLACE_FLAG;
         }
         else if (stuffedBuffer[i] == ESCAPEMENT)
         {
-            stuffedBuffer[i] = ESCAPEMENT;
-            stuffedBuffer[i + 1] = REPLACE_ESCAPEMENT;
-            i = i + 2;
+            stuffedBuffer[counter++] = ESCAPEMENT;
+            stuffedBuffer[counter++] = REPLACE_ESCAPEMENT;
         }
         else
         {
-            stuffedBuffer[i] = buffer[i];
-            i = i + 1;
+            stuffedBuffer[counter++] = buffer[i];
         }
     }
 
-    char *sb = stuffedBuffer;
-    return sb;
+
+    unsigned char* sb = malloc(sizeof(unsigned char)*(counter+1));
+    for(int i=0; i<counter;i++){
+        sb[i] = stuffedBuffer[i];
+    }return sb;
 }
-char* destuffingData(char *buffer, int size)
+unsigned char* destuffingData(char *buffer, int* size)
 {
     int counter = 0;
-    char destuffedData[MAX_SIZE];
+    unsigned char destuffedData[MAX_SIZE];
 
-    for(int i=0; i<size; i++){
+    for(int i=0; i<(*size); i++){
         if(buffer[i] == 0x7d){
             if(buffer[i+1] == 0x5e){
                 destuffedData[counter++] = 0x7e;
@@ -202,11 +197,14 @@ char* destuffingData(char *buffer, int size)
         }
     }
 
-    char* db = malloc(sizeof(char)*counter);
+    char* db = malloc(sizeof(char)*counter+1);
 
     for(int j=0; j<counter; j++){
         db[j] = destuffedData[j];
     }
+
+    counter++;
+    *size = counter;
 
     return db;
     
