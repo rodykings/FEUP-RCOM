@@ -44,10 +44,13 @@ typedef enum {
 } State_Machine;
 
 
-
+typedef struct {
+    unsigned char* filename;
+    long int size;
+}fileInfo;
 
 void sendControlMsg(int fd, unsigned char controlField);
-unsigned char* stateMachine(int fd, char controlField, int type);
+unsigned char* stateMachine(int fd, char controlField, int type, int* size);
 unsigned char* stuffingData(char* buffer, int* size);
 unsigned char* destuffingData(char *buffer, int *size);
 int calculateStuffedSize(char* buffer, int size);

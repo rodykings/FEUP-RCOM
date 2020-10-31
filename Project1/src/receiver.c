@@ -2,8 +2,9 @@
 
 void setReceiver(int fd)
 {
+    int * size = malloc(sizeof(int));
 
-    stateMachine(fd, C_SET, S);
+    stateMachine(fd, C_SET, S, size);
     
     printf("\nTrama SET recebida\n");
     sendControlMsg(fd, C_UA);
@@ -12,10 +13,54 @@ void setReceiver(int fd)
 
 int receiveControlPackage(int fd){
 
-    unsigned char* controlPackage = stateMachine(fd, 0x00, I);
+    int* sizeControlPackage = malloc(sizeof(int));
+    unsigned char* controlPackage = stateMachine(fd, 0x00, I, sizeControlPackage);
 
-    printf("\nTrama de controlo I recebida\n");
-   // sendControlMsg(fd, 0x00); //TODO -> C vai variar consoante o tipo de RR / REJ
+    fileInfo fileinfo;
+    int controlPackageStatus = checkControlPackage(controlPackage, sizeControlPackage, &fileinfo);
+
+   // printf("Size: %ld\n", fileinfo.size);
+   // printf("Filename: %s\n", fileinfo.filename);
+
+    
+    printf("\nTrama I de controlo recebida - STATUS: %x\n", controlPackageStatus);
+
+   //createFile(fileinfo);
 
     return 0;
 };
+
+int checkControlPackage(unsigned char*controlPackage, int*size, fileInfo* fileinfo){
+    //Filesize field
+    if(controlPackage[1] == 0){
+        int fileSize = 0;
+        int shift = 24;
+        for(int i=3; i<controlPackage[2]+3;i++){
+            fileSize |= (int) controlPackage[i] << shift;
+            shift-=8;
+        }
+        fileinfo->size = fileSize;
+    }
+
+    //Filename field
+    if(controlPackage[7] == 1){
+        unsigned char * fileName = malloc(sizeof(char) * controlPackage[8]);
+        int counter = 0;
+        
+        for(int i=9; i<controlPackage[8]+9;i++){
+            int nameSize = 0;
+            fileName[counter++] = controlPackage[i];
+        }
+
+        fileinfo->filename = fileName;
+    }    
+
+    return controlPackage[0];
+}
+
+void createFile(fileInfo info){
+    FILE *fp = fopen("file.gif", "w");
+    fseek(fp, info.size , SEEK_SET);
+    fputc('\0', fp);
+    fclose(fp);
+}

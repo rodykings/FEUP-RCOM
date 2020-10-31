@@ -34,12 +34,14 @@ int llopen(int fd, int status)
 
     printf("New termios structure set\n");
 
+    printf("\nStarting connection...\n\n");
+
     if (status == TRANSMITTER)
     {
 
         if (!setTransmitter(fd))
         {
-            printf("\nCommunication protocol failed after %d tries!", MAX_RETRY);
+            printf("\nCommunication protocol failed after %d tries!\n\n", MAX_RETRY);
             return -1;
         }
     }
@@ -88,22 +90,55 @@ int llwrite(int fd, unsigned char *filename)
 
     unsigned char *stuffedControlPackage = stuffingData(controlPackage, size);    
 
-    writtenCharacters += sendControlPackage(fd, stuffedControlPackage, size, bcc2, 0);
-    printf("\nControl Packaged Sent!\n");
+    
     //Espera pelo Aknowledge - máquina de estados
+    int seqN = 0;
+    do
+    {
+        writtenCharacters = 0;
+        writtenCharacters += sendControlPackage(fd, stuffedControlPackage, size, bcc2, seqN);
+        
+        alarmFlag = FALSE;
+        alarm(TIMEOUT);
+
+        int * size = malloc(sizeof(int));
+        
+        int c_state;
+
+        if(seqN == 0){
+            c_state = 0x05; //Expects positive ACK -> controlField val = 0x05 (R = 0)
+        }else {
+            c_state = 0x69; //Expects positive ACK -> controlField val = 0x69 (R = 1)
+        }
+        
+        unsigned char* status = stateMachine(fd, c_state, S, size);
+        if(status[0] == 'A'){
+            printf("Trama RR recebida!\n");
+            break;
+        }
+        else{
+            printf("Trama RJ recebida!\n");
+        }
+        
+        (seqN == 0) ? seqN++: seqN--;
+
+    } while (alarmFlag && numRetry < MAX_RETRY);
+    printf("\nTrama I de controlo enviada!\n");
+
+    
 
     //Stuffing
     //stuffingData(buffer, sizeStuffedBuffer);
 
     //sendData package cicle;
 
-    printf("Nr caracteres escritos: %d\n", writtenCharacters);
+    // printf("Nr caracteres escritos: %d\n", writtenCharacters);
     return writtenCharacters;
 }
 
 int llread(int fd, unsigned char *buffer)
 {
-    receiveControlPackage(fd); //TODO -> como passar o size que tem de ler na trama de controlo?
+    receiveControlPackage(fd);
     return 0;
 }
 

@@ -18,7 +18,8 @@ int setTransmitter(int fd)
         alarmFlag = FALSE;
         alarm(TIMEOUT);
 
-        stateMachine(fd, C_UA, S);
+        int * size = malloc(sizeof(int));
+        stateMachine(fd, C_UA, S, size);
 
     } while (alarmFlag && numRetry < MAX_RETRY);
 
@@ -51,7 +52,7 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
     buffer[counter++] = A_TRM;
     if (s == 0)
     {
-        buffer[counter++] = 0x0;
+        buffer[counter++] = 0x00;
     }
     else
     {
@@ -60,7 +61,6 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
     buffer[counter++] = buffer[1] ^ buffer[2]; //bcc
 
     //SEND CONTROL PACKAGE HERE
-    printf("SIZE: %d\n", *size);
     for (int i = 0; i < (*size); i++)
     {
         buffer[counter++] = controlPackage[i];
@@ -71,16 +71,12 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
 
     write(fd, &buffer,bufferSize);
 
-    for(int i=0;i<bufferSize;i++){
-        printf("%x:", buffer[i]);
-    }
-
     return counter;
 }
 
 unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int*packageSize)
 {
-    int sizeFileName = sizeof(fileName);
+    int sizeFileName = strlen(fileName);
     int packSize = 9*sizeof( unsigned char) + sizeFileName; //C,T1,L1,T2,L2(5) + sizeof(fileName) + tamanho campo filesize(4)
     unsigned char* controlPackage = (unsigned char*)(malloc(packSize));
 
@@ -90,7 +86,6 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
     * L = tamanho campo V
     * V = valor
     */
-
     controlPackage[0] = C_START;
     controlPackage[1] = T1; //file size
     controlPackage[2] = L1;

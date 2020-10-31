@@ -4,3 +4,5 @@
 void setReceiver(int fd);
 int receiveControlMsg(int fd, unsigned char control_field);
 int receiveControlPackage(int fd);
+int checkControlPackage(unsigned char*controlPackage, int*size, fileInfo* fileinfo);
+void createFile(fileInfo info);

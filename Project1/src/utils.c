@@ -13,14 +13,14 @@ void sendControlMsg(int fd, unsigned char controlField)
     write(fd, msg, 5);
 }
 
-unsigned char* stateMachine(int fd, char controlField, int type)
+unsigned char* stateMachine(int fd, char controlField, int type, int* size)
 {
 
     State_Machine state = START;
     unsigned char* message = malloc(sizeof(char)*MAX_SIZE);
     unsigned char c;
     int counter = 0;
-    int* size = malloc(sizeof(int));
+    int seqN = 0;
 
     while (state != STOP && !alarmFlag)
     {
@@ -48,21 +48,46 @@ unsigned char* stateMachine(int fd, char controlField, int type)
             }
             break;
         case A_RCV:
-            if (c == controlField)
-            {
-                state = C_RCV;
-            }
-            else
-            {
-                if (c == FLAG)
-                    state = FLAG_RCV;
+            if(type == S){
+                //ACK
+                //printf("Control field: %x\n", controlField);
+                if (c == controlField)
+                {   
+                    //printf("ACK HERE\n");
+                    state = C_RCV;
+                }
                 else
-                    state = START;
+                {
+                    if (c == FLAG)
+                        state = FLAG_RCV;
+                    //REJ
+                    else if(c == 0x65 || c == 0x1){
+                        return NULL;
+                    }
+                    else{
+                        return NULL;
+                    }
+                        
+                }
+            }else if(type == I){
+                if(c == 0x00 ){
+                    seqN=0;
+                    state = C_RCV;
+                }else if(c==0x40){
+                    seqN=1;
+                    state = C_RCV;
+                }else{
+                     if (c == FLAG)
+                        state = FLAG_RCV;
+                    else
+                        state = START;
+                }
             }
+            
             break;
         case C_RCV:
-            if (c == (A_TRM ^ controlField))
-            { //BCC = A_TRM ^ C
+            if (c == (A_TRM ^ controlField)) //BCC = A_TRM ^ C
+            { 
                 state = BCC_OK;
             }
             else
@@ -72,24 +97,36 @@ unsigned char* stateMachine(int fd, char controlField, int type)
             if (c == FLAG)
             {
                 if(type == I){
-
                     unsigned char bcc = message[counter-1];
                     *size = counter-2;
-                    printf("SIZE: %d\n", *size);
                     destuffingData(message, size);
 
-                    printf("BCC: %x\n", calculateBCC2(message, size));
                     
-
                     if(bcc == calculateBCC2(message, size)){
-                        
+                        unsigned char positiveACK; // R0000101 -> 0 ou 1
+
+                        if(seqN == 1){
+                            positiveACK = 0x69;
+                        }else{
+                            positiveACK = 0x05;
+                        }
+                        //printf("Positive ACK sent: %x\n", positiveACK);
+                        sendControlMsg(fd, positiveACK);
+                        printf("Trama RR enviada!\n");
                     }
                     else{
-                        printf("SEND REJ MESSAGE");
-                        //send rej message
+                        unsigned char negativeACK; // R0000001 -> 0 ou 1
+
+                        if(seqN == 1){
+                            negativeACK = 0x65;
+                        }else{
+                            negativeACK = 0x01;
+                        }
+                        //printf("Negative ACK sent: %x\n", negativeACK);
+                        sendControlMsg(fd, negativeACK);
+                        printf("Trama RJ enviada!\n");
                     }  
                 }
-
                 state = STOP;
             }
             else{
@@ -97,8 +134,7 @@ unsigned char* stateMachine(int fd, char controlField, int type)
                     state = START;
                 }else{
                     message[counter++] = c;
-                }
-                
+                } 
             }  
             break;
         default:
@@ -108,12 +144,15 @@ unsigned char* stateMachine(int fd, char controlField, int type)
     }
 
     if(type == I){
+            *size = counter;
             unsigned char* data = malloc(sizeof(char)*(counter+1));
             for(int i=0; i<counter; i++){
                 data[i] = message[i];
             }return data;
-    }else{
-            return NULL;
+    }else {
+        //TODO
+        unsigned char* akn = "A";
+        return akn;
     }
 
 }
