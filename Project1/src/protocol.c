@@ -62,14 +62,21 @@ int llwrite(int fd, unsigned char *filename)
     int writtenCharacters = 0;
 
     //Abre o ficheiro
-    FILE* file = fopen(filename, "r");
+    FILE* file = fopen(filename, "rb");
     int fileSize = getFileSize(file);
 
 
-    char buffer[fileSize];
+    unsigned char buffer[fileSize];
 
     /*Lê ficheiro*/
     fgets(buffer, fileSize, file);
+    
+    for(int i=0; i<fileSize; i++){
+        if(i%256==0){
+            printf("\n               ----BLOCO %d------\n", i/256);
+        }
+        printf("%x:", buffer[i]);
+    }
     
     //Envia trama de controlo
     int* size = malloc(sizeof(int));

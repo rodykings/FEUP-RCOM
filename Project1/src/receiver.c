@@ -19,7 +19,8 @@ fileInfo receiveControlPackage(int fd){
     fileInfo fileinfo;
     int controlPackageStatus = checkControlPackage(controlPackage, sizeControlPackage, &fileinfo);
 
-    printf("Nome ficheiro: %s");
+    printf("Nome ficheiro: %s\n", fileinfo.filename);
+    printf("Tamanho ficheiro: %d\n", fileinfo.size);
     
     printf("\nTrama I de controlo recebida - STATUS: %x\n", controlPackageStatus);
 

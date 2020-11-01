@@ -128,12 +128,12 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
     info[0] = FLAG;
     info[1] = A_TRM;
 
-    for(int i=0; i<size; i++){
-        printf("%x:", buffer[i]);
-        if(size%256==0){
-            printf("\n----------\n");
-        }
-    }
+    // for(int i=0; i<size; i++){
+    //     printf("%x:", buffer[i]);
+    //     if(size%256==0){
+    //         printf("\n----------\n");
+    //     }
+    // }
 
     for(int i=0; i< nTramas; i++){
 

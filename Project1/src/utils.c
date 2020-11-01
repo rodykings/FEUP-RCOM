@@ -137,8 +137,8 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                     
                     printf("BCC2: %x\n", bcc2);
                     
-                    printf("FIRST TO BCC:%x", message[0]);
-                    printf("LAST TO BCC:%x", message[*size-2]);
+                    printf("FIRST TO BCC:%x\n", message[0]);
+                    printf("LAST TO BCC:%x\n", message[*size-2]);
                     unsigned char calcBcc2 = calculateBCC2(message, size);
                     printf("CALC BCC2: %x\n", calcBcc2);
 
