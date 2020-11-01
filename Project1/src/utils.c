@@ -2,6 +2,28 @@
 
 extern int alarmFlag;
 
+int getFileSize(FILE* file) {
+	// saving current position
+	long int currentPosition = ftell(file);
+
+	// seeking end of file
+	if (fseek(file, 0, SEEK_END) == -1) {
+		printf("ERROR: Could not get file size.\n");
+		return -1;
+	}
+
+	// saving file size
+	long int size = ftell(file);
+
+	// seeking to the previously saved position
+	fseek(file, 0, currentPosition);
+
+	// returning size
+	return size;
+}
+
+
+
 void sendControlMsg(int fd, unsigned char controlField)
 {
     unsigned char msg[5];
@@ -25,6 +47,9 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
     while (state != STOP && !alarmFlag)
     {
         read(fd, &c, 1);
+        if(type == I){
+            printf("%x:",c);
+        }
 
         switch (state)
         {
@@ -53,7 +78,6 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                 //printf("Control field: %x\n", controlField);
                 if (c == controlField)
                 {   
-                    //printf("ACK HERE\n");
                     state = C_RCV;
                 }
                 else
@@ -71,11 +95,13 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                 }
             }else if(type == I){
                 if(c == 0x00 ){
+                    controlField = 0x00;
                     seqN=0;
                     state = C_RCV;
                 }else if(c==0x40){
                     seqN=1;
                     state = C_RCV;
+                    controlField = 0x40;
                 }else{
                      if (c == FLAG)
                         state = FLAG_RCV;
@@ -97,12 +123,26 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
             if (c == FLAG)
             {
                 if(type == I){
-                    unsigned char bcc = message[counter-1];
-                    *size = counter-2;
-                    destuffingData(message, size);
 
+                    printf("\nCONTER:%d\n", counter);
+                    unsigned char bcc2 = message[counter-1];
+                    *size = counter-1;
+
+/*
+                    printf("\nSIZE:%d\n", *size);
+                    for(int i=0; i<(*size); i++){
+                        printf("%x: ", message[i]);
+                    }*/
+                    message = destuffingData(message, size);
                     
-                    if(bcc == calculateBCC2(message, size)){
+                    printf("BCC2: %x\n", bcc2);
+                    
+                    printf("FIRST TO BCC:%x", message[0]);
+                    printf("LAST TO BCC:%x", message[*size-2]);
+                    unsigned char calcBcc2 = calculateBCC2(message, size);
+                    printf("CALC BCC2: %x\n", calcBcc2);
+
+                    if(bcc2 == calcBcc2){
                         unsigned char positiveACK; // R0000101 -> 0 ou 1
 
                         if(seqN == 0){
@@ -117,16 +157,17 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                     else{
                         unsigned char negativeACK; // R0000001 -> 0 ou 1
 
-                        if(seqN == 1){
-                            negativeACK = 0x81;
-                        }else{
+                        if(seqN == 0){
                             negativeACK = 0x01;
+                        }else{
+                            negativeACK = 0x81;
                         }
-                        //printf("Negative ACK sent: %x\n", negativeACK);
+                        printf("Negative ACK sent: %x\n", negativeACK);
                         sendControlMsg(fd, negativeACK);
                         printf("Trama RJ enviada!\n");
                     }  
                 }
+                printf("CHEGOU À FLAG\n");
                 state = STOP;
             }
             else{
@@ -144,9 +185,8 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
     }
 
     if(type == I){
-            *size = counter;
-            unsigned char* data = malloc(sizeof(char)*(counter+1));
-            for(int i=0; i<counter; i++){
+            unsigned char* data = malloc(sizeof(char)*(*size));
+            for(int i=0; i<(*size); i++){
                 data[i] = message[i];
             }return data;
     }else {
@@ -154,6 +194,8 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
         unsigned char* akn = "A";
         return akn;
     }
+
+    printf("\n");
 
 }
 

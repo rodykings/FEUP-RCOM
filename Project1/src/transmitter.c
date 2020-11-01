@@ -60,6 +60,7 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
     }
     buffer[counter++] = buffer[1] ^ buffer[2]; //bcc
 
+
     //SEND CONTROL PACKAGE HERE
     for (int i = 0; i < (*size); i++)
     {
@@ -67,6 +68,8 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
     }
 
     buffer[counter++] = bcc2; //bcc2;
+    printf("BCC2: %x\n", buffer[counter-1]);
+
     buffer[counter++] = FLAG;
 
     write(fd, &buffer,bufferSize);
@@ -108,14 +111,11 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
 unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
 {
     
-
     //Cálculo nr tramas
     int nTramas;
 
     int l1 = size / 256;
     int l2 = size % 256;
-
-    printf("L2: %d\n", l2);
 
     nTramas = l1;
     if (l2 != 0)
@@ -123,18 +123,23 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
         nTramas++;
     }
      
-    int sizeOfInfo = 256 + 10;
-    unsigned char info[sizeOfInfo];
+    unsigned char info[MAX_SIZE];
 
     info[0] = FLAG;
     info[1] = A_TRM;
+
+    for(int i=0; i<size; i++){
+        printf("%x:", buffer[i]);
+        if(size%256==0){
+            printf("\n----------\n");
+        }
+    }
 
     for(int i=0; i< nTramas; i++){
 
     
         int counter = 2;
 
-        printf("TRAMA %d\n", i+1);
         //send
         if(seqN == 0){
             info[counter++] = 0x00;
@@ -148,34 +153,33 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
         int * dataPackageSize = malloc(sizeof(int));
         *dataPackageSize = size;
 
-        unsigned char* dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
 
+        unsigned char* dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
 
         //BCC2
         unsigned char bcc2 = calculateBCC2(dataPackage, dataPackageSize);
-        printf("PASSOU bcc2!\n");
-        
+
         //stuffing
         unsigned char* stuffedData = stuffingData(dataPackage,  dataPackageSize);
 
-
-        printf("PASSOU sd!\n");
-        for(int j=0;j<(*dataPackageSize); j++){
-            info[counter++] = stuffedData[j];
+        //data
+        for(int i=0; i< (*dataPackageSize); i++){
+            info[counter++] = stuffedData[i];
         }
-        printf(":%d\n", *dataPackageSize);
-        
-        printf("PASSOU info data!\n");
 
         info[counter++] = bcc2;
         info[counter++] = FLAG;
 
-        
-        printf("-------------\n");
-        for(int i=0; i<sizeOfInfo; i++){
-            printf("%x:", info[i]);
-        }
-        write(fd, &info, sizeOfInfo);
+        //printf("Size of info: %d\n", sizeOfInfo);
+        //printf("Counter: %d\n", counter);
+/*
+        printf("\n%d ------------\n",i);
+        for(int j=0; j<counter; j++){
+            printf("%x:", info[j]);
+                
+        }printf("\n -----------\n");*/
+
+        write(fd, &info, counter);
 
         (seqN == 0) ? seqN++: seqN--;
     }
@@ -190,12 +194,6 @@ unsigned char * generateDataPackage(unsigned char *buffer, int* size, int n, int
     dataPackage[1] = n;
     dataPackage[2] = l1;
     dataPackage[3] = l2;
-
-    
-    printf("C:%x\n", dataPackage[0]);
-    printf("n:%x\n", dataPackage[1]);
-    printf("l1:%d\n", dataPackage[2]);
-    printf("l2:%d\n", dataPackage[3]);
 
     int counter = 4;
     int dataSize = 4;

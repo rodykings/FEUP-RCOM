@@ -11,7 +11,7 @@ void setReceiver(int fd)
     printf("\nTrama UA enviada\n");
 } 
 
-int receiveControlPackage(int fd){
+fileInfo receiveControlPackage(int fd){
 
     int* sizeControlPackage = malloc(sizeof(int));
     unsigned char* controlPackage = stateMachine(fd, 0x00, I, sizeControlPackage);
@@ -19,15 +19,13 @@ int receiveControlPackage(int fd){
     fileInfo fileinfo;
     int controlPackageStatus = checkControlPackage(controlPackage, sizeControlPackage, &fileinfo);
 
-   // printf("Size: %ld\n", fileinfo.size);
-   // printf("Filename: %s\n", fileinfo.filename);
-
+    printf("Nome ficheiro: %s");
     
     printf("\nTrama I de controlo recebida - STATUS: %x\n", controlPackageStatus);
 
    //createFile(fileinfo);
 
-    return 0;
+    return fileinfo;
 };
 
 int checkControlPackage(unsigned char*controlPackage, int*size, fileInfo* fileinfo){

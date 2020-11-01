@@ -61,20 +61,17 @@ int llwrite(int fd, unsigned char *filename)
 {
     int writtenCharacters = 0;
 
-    int file = open(filename, O_RDONLY);
+    //Abre o ficheiro
+    FILE* file = fopen(filename, "r");
+    int fileSize = getFileSize(file);
 
-    int fileSize = lseek(file, 0, SEEK_END);
 
     char buffer[fileSize];
+
+    /*Lê ficheiro*/
+    fgets(buffer, fileSize, file);
     
-    //Lê informação do ficheiro até ao fim
-    for (int i = 0; i < fileSize; i++)
-    {
-        read(file, &buffer, fileSize);
-    }
-
     //Envia trama de controlo
-
     int* size = malloc(sizeof(int));
     unsigned char *controlPackage = generateControlPackage(fileSize, filename, size);
 
@@ -132,14 +129,30 @@ int llwrite(int fd, unsigned char *filename)
 
 int llread(int fd)
 {
-    receiveControlPackage(fd);
-    int sizeT = 10968 + 6*43 + 4*43;
-    unsigned char buffer[1];
-    for(int i=0; i<sizeT; i++){
-        read(fd, &buffer, 1);
-        printf("%x:",buffer[1]);
-    }
+    fileInfo dataInfo = receiveControlPackage(fd);
 
+    int nTramas = dataInfo.size / 256;
+    if(dataInfo.size % 256 != 0) nTramas++;
+
+    int*size = malloc(sizeof(int));
+
+    printf("NTRAMAS : %d", nTramas);
+
+    for(int i=0; i < nTramas; i++){
+        printf("\nTRAMA %d -----------------\n", i);
+        unsigned char* data = stateMachine(fd, 0x00, I, size);
+
+        if (data == NULL) i--;
+
+/*
+        for(int i=0; i < (*size);i++){
+            printf("%x:", data[i]);
+        }*/
+
+        printf("\n--------------------\n");
+        
+    }
+        
     return 0;
 }
 
