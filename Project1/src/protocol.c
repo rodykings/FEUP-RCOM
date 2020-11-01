@@ -71,19 +71,19 @@ int llwrite(int fd, unsigned char *filename)
     /*Lê ficheiro*/
     fgets(buffer, fileSize, file);
     
-    for(int i=0; i<fileSize; i++){
-        if(i%256==0){
-            printf("\n               ----BLOCO %d------\n", i/256);
-        }
-        printf("%x:", buffer[i]);
-    }
+    // for(int i=0; i<fileSize; i++){
+    //     if(i%256==0){
+    //         printf("\n               ----BLOCO %d------\n", i/256);
+    //     }
+    //     printf("%x:", buffer[i]);
+    // }
     
     //Envia trama de controlo
     int* size = malloc(sizeof(int));
     unsigned char *controlPackage = generateControlPackage(fileSize, filename, size);
 
     //Calculo do BCC com informacao
-    unsigned char bcc2 = calculateBCC2(controlPackage, size);
+    unsigned char bcc2 = calculateBCC2(controlPackage, *size);
 
     unsigned char *stuffedControlPackage = stuffingData(controlPackage, size);    
 

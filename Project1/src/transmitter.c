@@ -157,10 +157,18 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
         unsigned char* dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
 
         //BCC2
-        unsigned char bcc2 = calculateBCC2(dataPackage, dataPackageSize);
+        unsigned char bcc2 = calculateBCC2(dataPackage, *dataPackageSize);
+
+        
 
         //stuffing
         unsigned char* stuffedData = stuffingData(dataPackage,  dataPackageSize);
+
+        printf("\n%d ------------\n",i);
+        for(int j=0; j<*dataPackageSize; j++){
+            printf("%x:", dataPackage[j]);
+                
+        }printf("\n -----------\n");
 
         //data
         for(int i=0; i< (*dataPackageSize); i++){
@@ -172,12 +180,8 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
 
         //printf("Size of info: %d\n", sizeOfInfo);
         //printf("Counter: %d\n", counter);
-/*
-        printf("\n%d ------------\n",i);
-        for(int j=0; j<counter; j++){
-            printf("%x:", info[j]);
-                
-        }printf("\n -----------\n");*/
+
+        
 
         write(fd, &info, counter);
 
@@ -198,9 +202,9 @@ unsigned char * generateDataPackage(unsigned char *buffer, int* size, int n, int
     int counter = 4;
     int dataSize = 4;
     //ultima trama
+    
     if(n == l1){
         dataSize += l2;
-        //TO DO
     }else{
         for(int i=n*256; i<n*256+256; i++){
             dataPackage[counter++] = buffer[i];

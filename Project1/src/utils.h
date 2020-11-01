@@ -55,4 +55,4 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size);
 unsigned char* stuffingData(char* buffer, int* size);
 unsigned char* destuffingData(char *buffer, int *size);
 int calculateStuffedSize(char* buffer, int size);
-unsigned char calculateBCC2(const unsigned char *buffer, unsigned int* size);
+unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size);
