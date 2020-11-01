@@ -118,20 +118,28 @@ int llwrite(int fd, unsigned char *filename)
     } while (alarmFlag && numRetry < MAX_RETRY);
     printf("\nTrama I de controlo enviada!\n");
 
+/*
+    for(int i=0; i<fileSize; i++){
+        printf("%x:", buffer[i]);
+    }*/
     sendData(fd, buffer, fileSize,seqN);
 
-    //Stuffing
-    //stuffingData(buffer, sizeStuffedBuffer);
 
-    //sendData package cicle;
 
     // printf("Nr caracteres escritos: %d\n", writtenCharacters);
     return writtenCharacters;
 }
 
-int llread(int fd, unsigned char *buffer)
+int llread(int fd)
 {
     receiveControlPackage(fd);
+    int sizeT = 10968 + 6*43 + 4*43;
+    unsigned char buffer[1];
+    for(int i=0; i<sizeT; i++){
+        read(fd, &buffer, 1);
+        printf("%x:",buffer[1]);
+    }
+
     return 0;
 }
 

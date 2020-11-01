@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     if(status == TRANSMITTER)
         llwrite(fd, argv[3]);
     if(status == RECEIVER)
-        llread(fd, argv[3]);
+        llread(fd);
     
 
     return 0;

@@ -190,9 +190,12 @@ int calculateStuffedSize(char *buffer, int size)
 
 unsigned char *stuffingData(char *buffer, int* size)
 {
-
+    int startStuffedSize = *size; 
+    if(*size < MAX_SIZE)
+        startStuffedSize = MAX_SIZE;
+    
     int counter = 0;
-    unsigned char stuffedBuffer[MAX_SIZE];
+    unsigned char stuffedBuffer[startStuffedSize];
 
     for (int i = 0; i < (*size); i++)
     {

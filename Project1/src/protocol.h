@@ -26,4 +26,4 @@ int llwrite(int fd, unsigned char * filename);
  * @param buffer array de caracteres recebidos
  * @return int comprimento do array (número de caracteres lidos)
  */
-int llread(int fd, unsigned char* buffer);
+int llread(int fd);

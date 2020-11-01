@@ -107,7 +107,7 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
 
 unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
 {
-    unsigned char info[MAX_SIZE];
+    
 
     //Cálculo nr tramas
     int nTramas;
@@ -115,22 +115,26 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
     int l1 = size / 256;
     int l2 = size % 256;
 
+    printf("L2: %d\n", l2);
+
     nTramas = l1;
     if (l2 != 0)
     {
         nTramas++;
     }
      
-    // printf("Nr tramas: %d\n", nTramas);
-    // printf("L1: %d\n", l1);
-    // printf("L2: %d\n", l2);
+    int sizeOfInfo = 256 + 10;
+    unsigned char info[sizeOfInfo];
 
-    int counter = 0;
-
-    info[counter++] = FLAG;
-    info[counter++] = A_TRM;
+    info[0] = FLAG;
+    info[1] = A_TRM;
 
     for(int i=0; i< nTramas; i++){
+
+    
+        int counter = 2;
+
+        printf("TRAMA %d\n", i+1);
         //send
         if(seqN == 0){
             info[counter++] = 0x00;
@@ -142,34 +146,36 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
         info[counter++] = info[1]^info[2];
 
         int * dataPackageSize = malloc(sizeof(int));
+        *dataPackageSize = size;
 
         unsigned char* dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
 
+
         //BCC2
         unsigned char bcc2 = calculateBCC2(dataPackage, dataPackageSize);
+        printf("PASSOU bcc2!\n");
         
         //stuffing
         unsigned char* stuffedData = stuffingData(dataPackage,  dataPackageSize);
 
-        for(int i=0;i<(*dataPackageSize); i++){
-            info[counter++] = stuffedData[i];
-        }        
+
+        printf("PASSOU sd!\n");
+        for(int j=0;j<(*dataPackageSize); j++){
+            info[counter++] = stuffedData[j];
+        }
+        printf(":%d\n", *dataPackageSize);
+        
+        printf("PASSOU info data!\n");
 
         info[counter++] = bcc2;
         info[counter++] = FLAG;
 
         
-        size = *dataPackageSize + 6;
-
-        unsigned char  data[size];
-        
-        /*for(int i=0; i< size;i++){
-            data[i] = info[i];
-            printf(":%x", data[i]);
+        printf("-------------\n");
+        for(int i=0; i<sizeOfInfo; i++){
+            printf("%x:", info[i]);
         }
-        printf("\n");*/
-
-        write(fd, data, size);
+        write(fd, &info, sizeOfInfo);
 
         (seqN == 0) ? seqN++: seqN--;
     }
@@ -178,32 +184,40 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
 }
 
 unsigned char * generateDataPackage(unsigned char *buffer, int* size, int n, int l1, int l2){
-    char dataPackage[MAX_SIZE];
+    unsigned char dataPackage[*size];
 
     dataPackage[0] = C_DATA;
     dataPackage[1] = n;
     dataPackage[2] = l1;
     dataPackage[3] = l2;
 
+    
+    printf("C:%x\n", dataPackage[0]);
+    printf("n:%x\n", dataPackage[1]);
+    printf("l1:%d\n", dataPackage[2]);
+    printf("l2:%d\n", dataPackage[3]);
+
     int counter = 4;
-    int dataSize = 0;
+    int dataSize = 4;
     //ultima trama
     if(n == l1){
-        dataSize = l2/8;
+        dataSize += l2;
+        //TO DO
     }else{
-        for(int i=n*8; i<n*8+32; i++){
+        for(int i=n*256; i<n*256+256; i++){
             dataPackage[counter++] = buffer[i];
         }
-        dataSize = 32;
+        dataSize += 256;
     }
     
     int cnt = 0;
-    unsigned char* dp = malloc((4+dataSize)*sizeof(char));
+    unsigned char* dp = malloc((4+dataSize)*sizeof( unsigned char));
+
     for(int i=0; i<4+dataSize;i++){
-        printf(":%x", dp[cnt]);
-        dp[cnt] = dataPackage[i];
+        dp[cnt++] = dataPackage[i];
     }
-    printf("\n");
+
+    *size = dataSize;
 
     return dp;
 }
