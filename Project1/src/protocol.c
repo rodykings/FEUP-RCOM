@@ -110,7 +110,7 @@ int llwrite(int fd, unsigned char *filename)
             c_state = 0x85; //Expects positive ACK -> controlField val = 0x85 (R = 1)
         }
 
-        unsigned char *status = stateMachine(fd, c_state, S, size);
+        unsigned char *status = stateMachine(fd, A_TRM, c_state, S, size);
         if (status[0] == 'A')
         {
             printf("Trama RR recebida!\n");
@@ -164,7 +164,7 @@ int llwrite(int fd, unsigned char *filename)
             c_state = 0x85; //Expects positive ACK -> controlField val = 0x85 (R = 1)
         }
 
-        unsigned char *status = stateMachine(fd, c_state, S, size);
+        unsigned char *status = stateMachine(fd, A_TRM, c_state, S, size);
         if (status[0] == 'A')
         {
             printf("Trama RR recebida!\n");
@@ -202,7 +202,7 @@ int llread(int fd)
         cnt = 0;
 
         printf("\nTRAMA %d-------------\n", i);
-        unsigned char *data = stateMachine(fd, 0x00, I, size);
+        unsigned char *data = stateMachine(fd, A_TRM, 0x00, I, size);
 
         if (i == 1)
             printf("SIZE: %d", *size - 2);

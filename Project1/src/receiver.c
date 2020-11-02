@@ -4,10 +4,10 @@ void setReceiver(int fd)
 {
     int *size = malloc(sizeof(int));
 
-    stateMachine(fd, C_SET, S, size);
+    stateMachine(fd, A_TRM, C_SET, S, size);
 
     printf("\nTrama SET recebida\n");
-    sendControlMsg(fd, C_UA);
+    sendControlMsg(fd, A_TRM, C_UA);
     printf("\nTrama UA enviada\n");
 }
 
@@ -15,7 +15,7 @@ fileInfo receiveControlPackage(int fd)
 {
 
     int *sizeControlPackage = malloc(sizeof(int));
-    unsigned char *controlPackage = stateMachine(fd, 0x00, I, sizeControlPackage);
+    unsigned char *controlPackage = stateMachine(fd, A_TRM, 0x00, I, sizeControlPackage);
 
     fileInfo fileinfo;
     int controlPackageStatus = checkControlPackage(controlPackage, sizeControlPackage, &fileinfo);
@@ -74,12 +74,12 @@ void handleDisconnection(int fd)
 {
     int *size = malloc(sizeof(int));
 
-    stateMachine(fd, C_DISC, S, size);
+    stateMachine(fd, A_TRM, C_DISC, S, size);
     printf("Trama DISC recebida!\n");
-    sendControlMsg(fd, C_DISC);
+    sendControlMsg(fd, A_REC, C_DISC);
     printf("Trama DISC enviada!\n");
 
-    stateMachine(fd, C_UA, S, size);
+    stateMachine(fd, A_REC, C_UA, S, size);
     printf("Trama UA recebida!\n");
 
     printf("Connection closed!\n");

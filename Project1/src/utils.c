@@ -22,24 +22,18 @@ int getFileSize(FILE* file) {
 	return size;
 }
 
-
-
-void sendControlMsg(int fd, unsigned char controlField)
+void sendControlMsg(int fd, unsigned char header, unsigned char controlField)
 {
     unsigned char msg[5];
     msg[0] = FLAG;
-    msg[1] = A_TRM;
+    msg[1] = header;
     msg[2] = controlField;
     msg[3] = (A_TRM ^ controlField);
     msg[4] = FLAG;
     write(fd, msg, 5);
-
-    if(controlField == 0x81 || controlField == 0x01){
-        printf("ENVIEI UMA TRAMA RJ");
-    }
 }
 
-unsigned char* stateMachine(int fd, char controlField, int type, int* size)
+unsigned char* stateMachine(int fd, unsigned char header, char controlField, int type, int* size)
 {
 
     State_Machine state = START;
@@ -61,7 +55,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
             }
             break;
         case FLAG_RCV:
-            if (c == A_TRM)
+            if (c == header)
             {
                 state = A_RCV;
             }
@@ -146,7 +140,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                             positiveACK = 0x85;
                         }
                        // printf("Positive ACK sent: %x\n", positiveACK);
-                        sendControlMsg(fd, positiveACK);
+                        sendControlMsg(fd, A_TRM, positiveACK);
                         printf("Trama RR enviada!\n");
                     }
                     else{
@@ -158,7 +152,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                             negativeACK = 0x81;
                         }
                       //  printf("Negative ACK sent: %x\n", negativeACK);
-                        sendControlMsg(fd, negativeACK);
+                        sendControlMsg(fd, A_TRM, negativeACK);
                         printf("Trama RJ enviada!\n");
                     }  
                 }

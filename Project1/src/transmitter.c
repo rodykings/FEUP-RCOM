@@ -12,14 +12,14 @@ int setTransmitter(int fd)
 
     do
     {
-        sendControlMsg(fd, C_SET);
+        sendControlMsg(fd, A_TRM, C_SET);
         printf("\nTrama SET enviada\n");
 
         alarmFlag = FALSE;
         alarm(TIMEOUT);
 
         int *size = malloc(sizeof(int));
-        stateMachine(fd, C_UA, S, size);
+        stateMachine(fd, A_TRM, C_UA, S, size);
 
     } while (alarmFlag && numRetry < MAX_RETRY);
 
@@ -224,17 +224,17 @@ void closeConnection(int fd)
 {
     do
     {
-        sendControlMsg(fd, C_SET);
+        sendControlMsg(fd, A_TRM, C_SET);
         printf("\nTrama DISC enviada\n");
 
         alarmFlag = FALSE;
         alarm(TIMEOUT);
 
         int *size = malloc(sizeof(int));
-        stateMachine(fd, C_DISC, S, size);
+        stateMachine(fd, A_REC, C_DISC, S, size);
         printf("Trama DISC recebida!\n");
 
-        sendControlMsg(fd, C_UA);
+        sendControlMsg(fd, A_REC, C_UA);
         printf("Trama UA enviada!\n");
         printf("Connection closed!\n");
 
