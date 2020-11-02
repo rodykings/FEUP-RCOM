@@ -2,77 +2,85 @@
 
 void setReceiver(int fd)
 {
-    int * size = malloc(sizeof(int));
+    int *size = malloc(sizeof(int));
 
     stateMachine(fd, C_SET, S, size);
-    
+
     printf("\nTrama SET recebida\n");
     sendControlMsg(fd, C_UA);
     printf("\nTrama UA enviada\n");
-} 
+}
 
-fileInfo receiveControlPackage(int fd){
+fileInfo receiveControlPackage(int fd)
+{
 
-    int* sizeControlPackage = malloc(sizeof(int));
-    unsigned char* controlPackage = stateMachine(fd, 0x00, I, sizeControlPackage);
+    int *sizeControlPackage = malloc(sizeof(int));
+    unsigned char *controlPackage = stateMachine(fd, 0x00, I, sizeControlPackage);
 
     fileInfo fileinfo;
     int controlPackageStatus = checkControlPackage(controlPackage, sizeControlPackage, &fileinfo);
 
     printf("Nome ficheiro: %s\n", fileinfo.filename);
     printf("Tamanho ficheiro: %d\n", fileinfo.size);
-    
+
     printf("\nTrama I de controlo recebida - STATUS: %x\n", controlPackageStatus);
 
-   //createFile(fileinfo);
+    //createFile(fileinfo);
 
     return fileinfo;
 };
 
-int checkControlPackage(unsigned char*controlPackage, int*size, fileInfo* fileinfo){
+int checkControlPackage(unsigned char *controlPackage, int *size, fileInfo *fileinfo)
+{
     //Filesize field
-    if(controlPackage[1] == 0){
+    if (controlPackage[1] == 0)
+    {
         int fileSize = 0;
         int shift = 24;
-        for(int i=3; i<controlPackage[2]+3;i++){
-            fileSize |= (int) controlPackage[i] << shift;
-            shift-=8;
+        for (int i = 3; i < controlPackage[2] + 3; i++)
+        {
+            fileSize |= (int)controlPackage[i] << shift;
+            shift -= 8;
         }
         fileinfo->size = fileSize;
     }
 
     //Filename field
-    if(controlPackage[7] == 1){
-        unsigned char * fileName = malloc(sizeof(unsigned char) * controlPackage[8]);
+    if (controlPackage[7] == 1)
+    {
+        unsigned char *fileName = malloc(sizeof(unsigned char) * controlPackage[8]);
         int counter = 0;
-        
-        for(int i=9; i<controlPackage[8]+9;i++){
+
+        for (int i = 9; i < controlPackage[8] + 9; i++)
+        {
             int nameSize = 0;
             fileName[counter++] = controlPackage[i];
         }
 
         fileinfo->filename = fileName;
-    }    
+    }
 
     return controlPackage[0];
 }
 
-void createFile(fileInfo info, unsigned char* fileData){
+void createFile(fileInfo info, unsigned char *fileData)
+{
     FILE *fp = fopen("file.gif", "wb+");
-
-    for(int i=0;i<info.size;i++){
-        if(i%256==0){
-            printf("\n----------\n");
-        }
-        printf("%x:", fileData[i]);
-    }
-
-    
-    //fseek(fp, info.size , SEEK_SET);
-   // printf("CREI UM FICHEIRO COM %d bytes" , info.size);
-    fwrite((void*)fileData,1, info.size, fp);
-   // free(fileData);
-    //write(fp, &fileData, info.size);
-  //  fputc('\0', fp);
+    fwrite((void *)fileData, 1, info.size, fp);
     fclose(fp);
+}
+
+void handleDisconnection(int fd)
+{
+    int *size = malloc(sizeof(int));
+
+    stateMachine(fd, C_DISC, S, size);
+    printf("Trama DISC recebida!\n");
+    sendControlMsg(fd, C_DISC);
+    printf("Trama DISC enviada!\n");
+
+    stateMachine(fd, C_UA, S, size);
+    printf("Trama UA recebida!\n");
+
+    printf("Connection closed!\n");
 }

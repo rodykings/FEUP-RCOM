@@ -18,7 +18,7 @@ int setTransmitter(int fd)
         alarmFlag = FALSE;
         alarm(TIMEOUT);
 
-        int * size = malloc(sizeof(int));
+        int *size = malloc(sizeof(int));
         stateMachine(fd, C_UA, S, size);
 
     } while (alarmFlag && numRetry < MAX_RETRY);
@@ -37,10 +37,10 @@ int setTransmitter(int fd)
     }
 }
 
-int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigned char bcc2, int s)
+int sendControlPackage(int fd, unsigned char *controlPackage, int *size, unsigned char bcc2, int s)
 {
 
-/*
+    /*
  *  Trama I : FLAG | A | C | BCC1 | Dados (pacote controlo) | BCC2 | FLAG 
  */
 
@@ -60,7 +60,6 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
     }
     buffer[counter++] = buffer[1] ^ buffer[2]; //bcc
 
-
     //SEND CONTROL PACKAGE HERE
     for (int i = 0; i < (*size); i++)
     {
@@ -71,16 +70,16 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
 
     buffer[counter++] = FLAG;
 
-    write(fd, &buffer,bufferSize);
+    write(fd, &buffer, bufferSize);
 
     return counter;
 }
 
-unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int*packageSize, int controlfield)
+unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int *packageSize, int controlfield)
 {
     int sizeFileName = strlen(fileName);
-    int packSize = 9*sizeof( unsigned char) + sizeFileName; //C,T1,L1,T2,L2(5) + sizeof(fileName) + tamanho campo filesize(4)
-    unsigned char* controlPackage = (unsigned char*)(malloc(packSize));
+    int packSize = 9 * sizeof(unsigned char) + sizeFileName; //C,T1,L1,T2,L2(5) + sizeof(fileName) + tamanho campo filesize(4)
+    unsigned char *controlPackage = (unsigned char *)(malloc(packSize));
 
     /* controlPackage = [C,T1,L1,V1,T2,L2,V2]
     * C = 2 (start) || C=3 (end)
@@ -109,7 +108,7 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
 
 unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
 {
-    
+
     //Cálculo nr tramas
     int nTramas;
 
@@ -121,7 +120,7 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
     {
         nTramas++;
     }
-     
+
     unsigned char info[MAX_SIZE];
 
     info[0] = FLAG;
@@ -134,53 +133,52 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
     //     }
     // }
 
-    for(int i=0; i< nTramas; i++){
+    for (int i = 0; i < nTramas; i++)
+    {
 
-    
         int counter = 2;
 
         //send
-        if(seqN == 0){
+        if (seqN == 0)
+        {
             info[counter++] = 0x00;
-        }else{
+        }
+        else
+        {
             info[counter++] = 0x40;
         }
-        
-        //BCC
-        info[counter++] = info[1]^info[2];
 
-        int * dataPackageSize = malloc(sizeof(int));
+        //BCC
+        info[counter++] = info[1] ^ info[2];
+
+        int *dataPackageSize = malloc(sizeof(int));
         *dataPackageSize = size;
 
-
-        unsigned char* dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
+        unsigned char *dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
 
         //BCC2
         unsigned char bcc2 = calculateBCC2(dataPackage, *dataPackageSize);
 
-        
-
         //stuffing
-        unsigned char* stuffedData = stuffingData(dataPackage,  dataPackageSize);
+        unsigned char *stuffedData = stuffingData(dataPackage, dataPackageSize);
 
         //data
-        for(int i=0; i< (*dataPackageSize); i++){
+        for (int i = 0; i < (*dataPackageSize); i++)
+        {
             info[counter++] = stuffedData[i];
         }
 
         info[counter++] = bcc2;
         info[counter++] = FLAG;
-    
 
         write(fd, &info, counter);
 
-        (seqN == 0) ? seqN++: seqN--;
+        (seqN == 0) ? seqN++ : seqN--;
     }
-    
-
 }
 
-unsigned char * generateDataPackage(unsigned char *buffer, int* size, int n, int l1, int l2){
+unsigned char *generateDataPackage(unsigned char *buffer, int *size, int n, int l1, int l2)
+{
     unsigned char dataPackage[*size];
 
     dataPackage[0] = C_DATA;
@@ -191,27 +189,54 @@ unsigned char * generateDataPackage(unsigned char *buffer, int* size, int n, int
     int counter = 4;
     int dataSize = 4;
     //ultima trama
-    
-    if(n == l1){
-        for(int i=n*256;i<n*256+l2; i++){
+
+    if (n == l1)
+    {
+        for (int i = n * 256; i < n * 256 + l2; i++)
+        {
             dataPackage[counter++] = buffer[i];
         }
         dataSize += l2;
-    }else{
-        for(int i=n*256; i<n*256+256; i++){
+    }
+    else
+    {
+        for (int i = n * 256; i < n * 256 + 256; i++)
+        {
             dataPackage[counter++] = buffer[i];
         }
         dataSize += 256;
     }
-    
-    int cnt = 0;
-    unsigned char* dp = malloc((4+dataSize)*sizeof( unsigned char));
 
-    for(int i=0; i<4+dataSize;i++){
+    int cnt = 0;
+    unsigned char *dp = malloc((4 + dataSize) * sizeof(unsigned char));
+
+    for (int i = 0; i < 4 + dataSize; i++)
+    {
         dp[cnt++] = dataPackage[i];
     }
 
     *size = dataSize;
 
     return dp;
+}
+
+void closeConnection(int fd)
+{
+    do
+    {
+        sendControlMsg(fd, C_SET);
+        printf("\nTrama DISC enviada\n");
+
+        alarmFlag = FALSE;
+        alarm(TIMEOUT);
+
+        int *size = malloc(sizeof(int));
+        stateMachine(fd, C_DISC, S, size);
+        printf("Trama DISC recebida!\n");
+
+        sendControlMsg(fd, C_UA);
+        printf("Trama UA enviada!\n");
+        printf("Connection closed!\n");
+
+    } while (alarmFlag && numRetry < MAX_RETRY);
 }

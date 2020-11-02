@@ -38,3 +38,4 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
 unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int*packageSize, int controlfield);
 unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN);
 unsigned char * generateDataPackage(unsigned char *buffer, int* size, int n, int l1, int l2);
+void closeConnection(int fd);

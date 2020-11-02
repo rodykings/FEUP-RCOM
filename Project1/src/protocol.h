@@ -27,3 +27,5 @@ int llwrite(int fd, unsigned char * filename);
  * @return int comprimento do array (número de caracteres lidos)
  */
 int llread(int fd);
+
+void llclose(int fd, int status);

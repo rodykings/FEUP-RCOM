@@ -18,6 +18,7 @@
 #define A_REC 0x01
 #define C_SET 0x03
 #define C_UA 0x07
+#define C_DISC 0x0B
 
 //Stuffing macros
 #define ESCAPEMENT 0x7D

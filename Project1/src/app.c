@@ -39,6 +39,7 @@ int main(int argc, char **argv)
     if(status == RECEIVER)
         llread(fd);
     
+    llclose(fd, status);
 
     return 0;
 }

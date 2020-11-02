@@ -33,6 +33,10 @@ void sendControlMsg(int fd, unsigned char controlField)
     msg[3] = (A_TRM ^ controlField);
     msg[4] = FLAG;
     write(fd, msg, 5);
+
+    if(controlField == 0x81 || controlField == 0x01){
+        printf("ENVIEI UMA TRAMA RJ");
+    }
 }
 
 unsigned char* stateMachine(int fd, char controlField, int type, int* size)
@@ -83,6 +87,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                         state = FLAG_RCV;
                     //REJ
                     else if(c == 0x81 || c == 0x01){
+                        printf("RECEBEU 0x81 ou 0x01\n");
                         return NULL;
                     }
                     else{
@@ -121,14 +126,12 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
             {
                 if(type == I){
                     
-                   
-
                     unsigned char bcc2 = message[counter-1];
                     *size=counter-1;
 
                     message = destuffingData(message, size);
 
-                    
+                    printf("BCC = %x\n", bcc2);
                     
 
                     int sizeBcc = *size-1;

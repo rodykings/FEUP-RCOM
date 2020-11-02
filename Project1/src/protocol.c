@@ -62,113 +62,120 @@ int llwrite(int fd, unsigned char *filename)
     int writtenCharacters = 0;
 
     //Abre o ficheiro
-    FILE* file = fopen(filename, "rb");
+    FILE *file = fopen(filename, "rb");
     int fileSize = getFileSize(file);
 
-
-    unsigned char* buffer = malloc(sizeof(unsigned char)*fileSize);
+    unsigned char *buffer = malloc(sizeof(unsigned char) * fileSize);
     /*Lê ficheiro*/
     fread(buffer, sizeof(unsigned char), fileSize, file);
 
-    
-    for(int i=0; i<fileSize; i++){
-         if(i%256==0){
-             printf("\n----BLOCO %d------\n", i/256);
+  /*  for (int i = 0; i < fileSize; i++)
+    {
+        if (i % 256 == 0)
+        {
+            printf("\n----BLOCO %d------\n", i / 256);
         }
-         printf("%x:", buffer[i]);
-     }
-    
+        printf("%x:", buffer[i]);
+    }*/
+
     //Envia trama de controlo
-    int* size = malloc(sizeof(int));
+    int *size = malloc(sizeof(int));
     unsigned char *controlPackage = generateControlPackage(fileSize, filename, size, 0x02);
 
     //Calculo do BCC com informacao
     unsigned char bcc2 = calculateBCC2(controlPackage, *size);
 
-    unsigned char *stuffedControlPackage = stuffingData(controlPackage, size);    
+    unsigned char *stuffedControlPackage = stuffingData(controlPackage, size);
 
-    
     //Espera pelo Aknowledge - máquina de estados
     int seqN = 0;
     do
     {
         writtenCharacters = 0;
         writtenCharacters += sendControlPackage(fd, stuffedControlPackage, size, bcc2, seqN);
-        
+
         alarmFlag = FALSE;
         alarm(TIMEOUT);
 
-        int * size = malloc(sizeof(int));
-        
+        int *size = malloc(sizeof(int));
+
         int c_state;
 
-        if(seqN == 0){
+        if (seqN == 0)
+        {
             c_state = 0x05; //Expects positive ACK -> controlField val = 0x05 (R = 0)
-        }else {
+        }
+        else
+        {
             c_state = 0x85; //Expects positive ACK -> controlField val = 0x85 (R = 1)
         }
-        
-        unsigned char* status = stateMachine(fd, c_state, S, size);
-        if(status[0] == 'A'){
+
+        unsigned char *status = stateMachine(fd, c_state, S, size);
+        if (status[0] == 'A')
+        {
             printf("Trama RR recebida!\n");
             break;
         }
-        else{
+        else
+        {
             printf("Trama RJ recebida!\n");
         }
-        
-        (seqN == 0) ? seqN++: seqN--;
+
+        (seqN == 0) ? seqN++ : seqN--;
 
     } while (alarmFlag && numRetry < MAX_RETRY);
     printf("\nTrama I de controlo enviada!\n");
 
-/*
+    /*
     for(int i=0; i<fileSize; i++){
         printf("%x:", buffer[i]);
     }*/
-    sendData(fd, buffer, fileSize,seqN);
-
+    sendData(fd, buffer, fileSize, seqN);
 
     //Envia trama de controlo
-    int* finalSize = malloc(sizeof(int));
+    int *finalSize = malloc(sizeof(int));
     unsigned char *finalControlPackage = generateControlPackage(fileSize, filename, finalSize, 0x03);
 
     //Calculo do BCC com informacao
     unsigned char finalBcc2 = calculateBCC2(finalControlPackage, *finalSize);
 
-    unsigned char *stuffedFinalControlPackage = stuffingData(finalControlPackage, finalSize);    
+    unsigned char *stuffedFinalControlPackage = stuffingData(finalControlPackage, finalSize);
 
-    
     //Espera pelo Aknowledge - máquina de estados
     int finalSeqN = 0;
     do
     {
         writtenCharacters = 0;
         writtenCharacters += sendControlPackage(fd, stuffedFinalControlPackage, finalSize, finalBcc2, finalSeqN);
-        
+
         alarmFlag = FALSE;
         alarm(TIMEOUT);
 
-        int * size = malloc(sizeof(int));
-        
+        int *size = malloc(sizeof(int));
+
         int c_state;
 
-        if(finalSeqN == 0){
+        if (finalSeqN == 0)
+        {
             c_state = 0x05; //Expects positive ACK -> controlField val = 0x05 (R = 0)
-        }else {
+        }
+        else
+        {
             c_state = 0x85; //Expects positive ACK -> controlField val = 0x85 (R = 1)
         }
-        
-        unsigned char* status = stateMachine(fd, c_state, S, size);
-        if(status[0] == 'A'){
+
+        unsigned char *status = stateMachine(fd, c_state, S, size);
+        if (status[0] == 'A')
+        {
             printf("Trama RR recebida!\n");
             break;
         }
-        else{
+        else
+        {
             printf("Trama RJ recebida!\n");
         }
-        
-        (finalSeqN == 0) ? finalSeqN++: finalSeqN--;
+
+        (finalSeqN == 0) ? finalSeqN++ : finalSeqN--;
 
     } while (alarmFlag && numRetry < MAX_RETRY);
     printf("\nTrama I de controlo final enviada!\n");
@@ -181,41 +188,62 @@ int llread(int fd)
     fileInfo dataInfo = receiveControlPackage(fd);
 
     int nTramas = dataInfo.size / 256;
-    if(dataInfo.size % 256 != 0) nTramas++;
+    if (dataInfo.size % 256 != 0)
+        nTramas++;
 
-    int*size = malloc(sizeof(int));
+    int *size = malloc(sizeof(int));
 
-    unsigned char* fileData = malloc(sizeof(unsigned char)*dataInfo.size);
+    unsigned char *fileData = malloc(sizeof(unsigned char) * dataInfo.size);
 
     int counter = 0;
     int cnt = 0;
-    for(int i=0; i < nTramas; i++){
+    for (int i = 0; i < nTramas; i++)
+    {
         cnt = 0;
-        
+
         printf("\nTRAMA %d-------------\n", i);
-        unsigned char* data = stateMachine(fd, 0x00, I, size);
-       // printf("SIZE: %d\n", *size);
-        for(int d=4; d<(*size)-1; d++){
+        unsigned char *data = stateMachine(fd, 0x00, I, size);
+
+        if (i == 1)
+            printf("SIZE: %d", *size - 2);
+        // printf("SIZE: %d\n", *size);
+        for (int d = 4; d < (*size) - 1; d++)
+        {
             fileData[counter++] = data[d];
-            //printf("%x:", fileData[counter-1]);
+           /* if (i == 1)
+            {
+                printf("%d:", cnt);
+                printf("%x\n", fileData[counter - 1]);
+            }*/
+            //
             cnt++;
         }
 
-        if (data == NULL) i--;
+        if (data == NULL)
+        {
+            printf("RECEBEU NULL: %d", i);
+            i--;
+        }
         //printf("\n--------------\n");
         //printf("\nSENT: %d bytes - %d/%d\n", cnt, counter, dataInfo.size);
     }
-   // printf("\nCOUNTER: %d", counter);
+    // printf("\nCOUNTER: %d", counter);
 
     fileInfo dataInfoFinal = receiveControlPackage(fd);
-        
-    createFile(dataInfo , fileData);
+
+    createFile(dataInfo, fileData);
 
     return 0;
 }
 
-void llclose(int fd)
+void llclose(int fd, int status)
 {
+    if(status == TRANSMITTER){
+        closeConnection(fd);
+    }
+    if(status == RECEIVER){
+        handleDisconnection(fd);
+    }
 
     //all ending connections
 
