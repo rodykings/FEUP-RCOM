@@ -35,6 +35,6 @@ int setTransmitter(int fd);
  * @return int Size of control package
  */
 int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigned char bcc2, int s);
-unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int*packageSize);
+unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int*packageSize, int controlfield);
 unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN);
 unsigned char * generateDataPackage(unsigned char *buffer, int* size, int n, int l1, int l2);

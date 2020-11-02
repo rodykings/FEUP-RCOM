@@ -57,9 +57,13 @@ int checkControlPackage(unsigned char*controlPackage, int*size, fileInfo* filein
     return controlPackage[0];
 }
 
-void createFile(fileInfo info){
-    FILE *fp = fopen("file.gif", "w");
-    fseek(fp, info.size , SEEK_SET);
-    fputc('\0', fp);
+void createFile(fileInfo info, unsigned char* fileData){
+    FILE *fp = fopen("file.gif", "wb");
+
+    
+    //fseek(fp, info.size , SEEK_SET);
+   // printf("CREI UM FICHEIRO COM %d bytes" , info.size);
+    fwrite(fileData, sizeof(unsigned char), info.size, fp);
+    //fputc('\0', fp);
     fclose(fp);
 }

@@ -68,7 +68,6 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
     }
 
     buffer[counter++] = bcc2; //bcc2;
-    printf("BCC2: %x\n", buffer[counter-1]);
 
     buffer[counter++] = FLAG;
 
@@ -77,7 +76,7 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int* size, unsigne
     return counter;
 }
 
-unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int*packageSize)
+unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int*packageSize, int controlfield)
 {
     int sizeFileName = strlen(fileName);
     int packSize = 9*sizeof( unsigned char) + sizeFileName; //C,T1,L1,T2,L2(5) + sizeof(fileName) + tamanho campo filesize(4)
@@ -89,7 +88,7 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
     * L = tamanho campo V
     * V = valor
     */
-    controlPackage[0] = C_START;
+    controlPackage[0] = controlfield;
     controlPackage[1] = T1; //file size
     controlPackage[2] = L1;
     controlPackage[3] = (fileSize >> 24) & 0xFF;
@@ -164,12 +163,6 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
         //stuffing
         unsigned char* stuffedData = stuffingData(dataPackage,  dataPackageSize);
 
-        printf("\n%d ------------\n",i);
-        for(int j=0; j<*dataPackageSize; j++){
-            printf("%x:", dataPackage[j]);
-                
-        }printf("\n -----------\n");
-
         //data
         for(int i=0; i< (*dataPackageSize); i++){
             info[counter++] = stuffedData[i];
@@ -177,11 +170,7 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
 
         info[counter++] = bcc2;
         info[counter++] = FLAG;
-
-        //printf("Size of info: %d\n", sizeOfInfo);
-        //printf("Counter: %d\n", counter);
-
-        
+    
 
         write(fd, &info, counter);
 

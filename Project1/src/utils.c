@@ -47,10 +47,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
     while (state != STOP && !alarmFlag)
     {
         read(fd, &c, 1);
-       /* if(type == I){
-            printf("%x:",c);
-        }*/
-
+ 
         switch (state)
         {
         case START:
@@ -124,32 +121,16 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
             {
                 if(type == I){
 
-                    printf("\nCONTER:%d\n", counter);
                     unsigned char bcc2 = message[counter-1];
-
-/*
-                    printf("\nSIZE:%d\n", *size);
-                    for(int i=0; i<(*size); i++){
-                        printf("%x: ", message[i]);
-                    }*/
                     *size=counter-1;
-
-
-                    for(int i=0; i < *size;i++){
-                        printf("%x:",message[i]);
-                    }
 
                     message = destuffingData(message, size);
 
                     
-                    printf("BCC2: %x\n", bcc2);
                     
-                    printf("FIRST TO BCC:%x\n", message[0]);
-                    printf("LAST TO BCC:%x\n", message[*size-2]);
 
                     int sizeBcc = *size-1;
                     unsigned char calcBcc2 = calculateBCC2(message, sizeBcc);
-                    printf("CALC BCC2: %x\n", calcBcc2);
 
                     if(bcc2 == calcBcc2){
                         unsigned char positiveACK; // R0000101 -> 0 ou 1
@@ -159,7 +140,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                         }else{
                             positiveACK = 0x85;
                         }
-                        printf("Positive ACK sent: %x\n", positiveACK);
+                       // printf("Positive ACK sent: %x\n", positiveACK);
                         sendControlMsg(fd, positiveACK);
                         printf("Trama RR enviada!\n");
                     }
@@ -171,12 +152,11 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
                         }else{
                             negativeACK = 0x81;
                         }
-                        printf("Negative ACK sent: %x\n", negativeACK);
+                      //  printf("Negative ACK sent: %x\n", negativeACK);
                         sendControlMsg(fd, negativeACK);
                         printf("Trama RJ enviada!\n");
                     }  
                 }
-                printf("CHEGOU À FLAG\n");
                 state = STOP;
             }
             else{
@@ -203,9 +183,6 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
         unsigned char* akn = "A";
         return akn;
     }
-
-    printf("\n");
-
 }
 
 unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size)

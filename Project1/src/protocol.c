@@ -80,7 +80,7 @@ int llwrite(int fd, unsigned char *filename)
     
     //Envia trama de controlo
     int* size = malloc(sizeof(int));
-    unsigned char *controlPackage = generateControlPackage(fileSize, filename, size);
+    unsigned char *controlPackage = generateControlPackage(fileSize, filename, size, 0x02);
 
     //Calculo do BCC com informacao
     unsigned char bcc2 = calculateBCC2(controlPackage, *size);
@@ -129,8 +129,50 @@ int llwrite(int fd, unsigned char *filename)
     sendData(fd, buffer, fileSize,seqN);
 
 
+    //Envia trama de controlo
+    int* finalSize = malloc(sizeof(int));
+    unsigned char *finalControlPackage = generateControlPackage(fileSize, filename, finalSize, 0x03);
 
-    // printf("Nr caracteres escritos: %d\n", writtenCharacters);
+    //Calculo do BCC com informacao
+    unsigned char finalBcc2 = calculateBCC2(finalControlPackage, *finalSize);
+
+    unsigned char *stuffedFinalControlPackage = stuffingData(finalControlPackage, finalSize);    
+
+    
+    //Espera pelo Aknowledge - máquina de estados
+    int finalSeqN = 0;
+    do
+    {
+        writtenCharacters = 0;
+        writtenCharacters += sendControlPackage(fd, stuffedFinalControlPackage, finalSize, finalBcc2, finalSeqN);
+        
+        alarmFlag = FALSE;
+        alarm(TIMEOUT);
+
+        int * size = malloc(sizeof(int));
+        
+        int c_state;
+
+        if(finalSeqN == 0){
+            c_state = 0x05; //Expects positive ACK -> controlField val = 0x05 (R = 0)
+        }else {
+            c_state = 0x85; //Expects positive ACK -> controlField val = 0x85 (R = 1)
+        }
+        
+        unsigned char* status = stateMachine(fd, c_state, S, size);
+        if(status[0] == 'A'){
+            printf("Trama RR recebida!\n");
+            break;
+        }
+        else{
+            printf("Trama RJ recebida!\n");
+        }
+        
+        (finalSeqN == 0) ? finalSeqN++: finalSeqN--;
+
+    } while (alarmFlag && numRetry < MAX_RETRY);
+    printf("\nTrama I de controlo final enviada!\n");
+
     return writtenCharacters;
 }
 
@@ -143,23 +185,30 @@ int llread(int fd)
 
     int*size = malloc(sizeof(int));
 
-    printf("NTRAMAS : %d", nTramas);
+    unsigned char* fileData = malloc(sizeof(unsigned char)*dataInfo.size);
 
+    int counter = 0;
     for(int i=0; i < nTramas; i++){
-        printf("\nTRAMA %d -----------------\n", i);
+        int cnt = 0;
+        printf("\nTRAMA %d-------------\n", i);
         unsigned char* data = stateMachine(fd, 0x00, I, size);
-
+        for(int d=4; d<(*size); d++){
+            
+            fileData[counter] = data[d];
+            printf("%x:", fileData[counter]);
+            counter++;
+            cnt++;
+        }
         if (data == NULL) i--;
-
-/*
-        for(int i=0; i < (*size);i++){
-            printf("%x:", data[i]);
-        }*/
-
-        printf("\n--------------------\n");
-        
+        printf("\n--------------\n");
+        printf("\nSENT: %d bytes - %d/10968\n", cnt-1, counter-1);
     }
+    printf("\nCOUNTER: %d", counter-1);
+
+    fileInfo dataInfoFinal = receiveControlPackage(fd);
         
+    createFile(dataInfo , fileData);
+
     return 0;
 }
 
