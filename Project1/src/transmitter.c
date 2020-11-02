@@ -193,6 +193,9 @@ unsigned char * generateDataPackage(unsigned char *buffer, int* size, int n, int
     //ultima trama
     
     if(n == l1){
+        for(int i=n*256;i<n*256+l2; i++){
+            dataPackage[counter++] = buffer[i];
+        }
         dataSize += l2;
     }else{
         for(int i=n*256; i<n*256+256; i++){

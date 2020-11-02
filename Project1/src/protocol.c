@@ -66,17 +66,17 @@ int llwrite(int fd, unsigned char *filename)
     int fileSize = getFileSize(file);
 
 
-    unsigned char buffer[fileSize];
-
+    unsigned char* buffer = malloc(sizeof(unsigned char)*fileSize);
     /*Lê ficheiro*/
-    fgets(buffer, fileSize, file);
+    fread(buffer, sizeof(unsigned char), fileSize, file);
+
     
-    // for(int i=0; i<fileSize; i++){
-    //     if(i%256==0){
-    //         printf("\n               ----BLOCO %d------\n", i/256);
-    //     }
-    //     printf("%x:", buffer[i]);
-    // }
+    for(int i=0; i<fileSize; i++){
+         if(i%256==0){
+             printf("\n----BLOCO %d------\n", i/256);
+        }
+         printf("%x:", buffer[i]);
+     }
     
     //Envia trama de controlo
     int* size = malloc(sizeof(int));
@@ -188,22 +188,24 @@ int llread(int fd)
     unsigned char* fileData = malloc(sizeof(unsigned char)*dataInfo.size);
 
     int counter = 0;
+    int cnt = 0;
     for(int i=0; i < nTramas; i++){
-        int cnt = 0;
+        cnt = 0;
+        
         printf("\nTRAMA %d-------------\n", i);
         unsigned char* data = stateMachine(fd, 0x00, I, size);
-        for(int d=4; d<(*size); d++){
-            
-            fileData[counter] = data[d];
-            printf("%x:", fileData[counter]);
-            counter++;
+       // printf("SIZE: %d\n", *size);
+        for(int d=4; d<(*size)-1; d++){
+            fileData[counter++] = data[d];
+            //printf("%x:", fileData[counter-1]);
             cnt++;
         }
+
         if (data == NULL) i--;
-        printf("\n--------------\n");
-        printf("\nSENT: %d bytes - %d/10968\n", cnt-1, counter-1);
+        //printf("\n--------------\n");
+        //printf("\nSENT: %d bytes - %d/%d\n", cnt, counter, dataInfo.size);
     }
-    printf("\nCOUNTER: %d", counter-1);
+   // printf("\nCOUNTER: %d", counter);
 
     fileInfo dataInfoFinal = receiveControlPackage(fd);
         

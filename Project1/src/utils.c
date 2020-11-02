@@ -39,7 +39,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
 {
 
     State_Machine state = START;
-    unsigned char* message = malloc(sizeof(char)*MAX_SIZE);
+    unsigned char* message = malloc(sizeof(unsigned char)*MAX_SIZE);
     unsigned char c;
     int counter = 0;
     int seqN = 0;
@@ -120,6 +120,8 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
             if (c == FLAG)
             {
                 if(type == I){
+                    
+                   
 
                     unsigned char bcc2 = message[counter-1];
                     *size=counter-1;
@@ -174,7 +176,7 @@ unsigned char* stateMachine(int fd, char controlField, int type, int* size)
     }
 
     if(type == I){
-            unsigned char* data = malloc(sizeof(char)*(*size));
+            unsigned char* data = malloc(sizeof(unsigned char)*(*size));
             for(int i=0; i<(*size); i++){
                 data[i] = message[i];
             }return data;
@@ -197,7 +199,7 @@ unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size)
 }
 
 //Ao passarmos um buffer unstuffed e o seu tamanho calcula tamanho do bufferStuffed
-int calculateStuffedSize(char *buffer, int size)
+int calculateStuffedSize(unsigned char *buffer, int size)
 {
     int counter = 0;
 
@@ -216,11 +218,12 @@ int calculateStuffedSize(char *buffer, int size)
     return counter;
 }
 
-unsigned char *stuffingData(char *buffer, int* size)
+unsigned char *stuffingData(unsigned char *buffer, int* size)
 {
     int startStuffedSize = *size; 
     if(*size < MAX_SIZE)
         startStuffedSize = MAX_SIZE;
+
     
     int counter = 0;
     unsigned char stuffedBuffer[startStuffedSize];
@@ -243,14 +246,15 @@ unsigned char *stuffingData(char *buffer, int* size)
         }
     }
 
+    *size = counter;
 
-    unsigned char* sb = malloc(sizeof(unsigned char)*(counter+1));
+    unsigned char* sb = malloc(sizeof(unsigned char)*(counter));
     for(int i=0; i<counter;i++){
         sb[i] = stuffedBuffer[i];
     }return sb;
 }
 
-unsigned char* destuffingData(char *buffer, int* size)
+unsigned char* destuffingData(unsigned char *buffer, int* size)
 {
     int counter = 0;
     unsigned char destuffedData[MAX_SIZE];
@@ -268,7 +272,7 @@ unsigned char* destuffingData(char *buffer, int* size)
         }
     }
 
-    char* db = malloc(sizeof(char)*counter+1);
+    unsigned char* db = malloc(sizeof(unsigned char)*counter);
 
     for(int j=0; j<counter; j++){
         db[j] = destuffedData[j];

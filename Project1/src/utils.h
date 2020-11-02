@@ -52,7 +52,7 @@ typedef struct {
 int getFileSize(FILE* file);
 void sendControlMsg(int fd, unsigned char controlField);
 unsigned char* stateMachine(int fd, char controlField, int type, int* size);
-unsigned char* stuffingData(char* buffer, int* size);
-unsigned char* destuffingData(char *buffer, int *size);
-int calculateStuffedSize(char* buffer, int size);
+unsigned char* stuffingData(unsigned char* buffer, int* size);
+unsigned char* destuffingData(unsigned char *buffer, int *size);
+int calculateStuffedSize(unsigned char* buffer, int size);
 unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size);

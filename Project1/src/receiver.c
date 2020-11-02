@@ -43,7 +43,7 @@ int checkControlPackage(unsigned char*controlPackage, int*size, fileInfo* filein
 
     //Filename field
     if(controlPackage[7] == 1){
-        unsigned char * fileName = malloc(sizeof(char) * controlPackage[8]);
+        unsigned char * fileName = malloc(sizeof(unsigned char) * controlPackage[8]);
         int counter = 0;
         
         for(int i=9; i<controlPackage[8]+9;i++){
@@ -58,12 +58,21 @@ int checkControlPackage(unsigned char*controlPackage, int*size, fileInfo* filein
 }
 
 void createFile(fileInfo info, unsigned char* fileData){
-    FILE *fp = fopen("file.gif", "wb");
+    FILE *fp = fopen("file.gif", "wb+");
+
+    for(int i=0;i<info.size;i++){
+        if(i%256==0){
+            printf("\n----------\n");
+        }
+        printf("%x:", fileData[i]);
+    }
 
     
     //fseek(fp, info.size , SEEK_SET);
    // printf("CREI UM FICHEIRO COM %d bytes" , info.size);
-    fwrite(fileData, sizeof(unsigned char), info.size, fp);
-    //fputc('\0', fp);
+    fwrite((void*)fileData,1, info.size, fp);
+   // free(fileData);
+    //write(fp, &fileData, info.size);
+  //  fputc('\0', fp);
     fclose(fp);
 }
