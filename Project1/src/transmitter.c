@@ -66,9 +66,9 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int *size, unsigne
         buffer[counter++] = controlPackage[i];
     }
 
-    buffer[counter++] = bcc2; //bcc2;
-
     buffer[counter++] = FLAG;
+
+    
 
     write(fd, &buffer, bufferSize);
 
@@ -79,7 +79,7 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
 {
     int sizeFileName = strlen(fileName);
     int packSize = 9 * sizeof(unsigned char) + sizeFileName; //C,T1,L1,T2,L2(5) + sizeof(fileName) + tamanho campo filesize(4)
-    unsigned char *controlPackage = (unsigned char *)(malloc(packSize));
+    unsigned char *controlPackage = malloc(sizeof(unsigned char)*(packSize+1));
 
     /* controlPackage = [C,T1,L1,V1,T2,L2,V2]
     * C = 2 (start) || C=3 (end)
@@ -101,7 +101,7 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
         controlPackage[9 + i] = fileName[i];
     }
 
-    *packageSize = packSize;
+    *packageSize = packSize+1;
 
     return controlPackage;
 }
@@ -157,7 +157,9 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
         unsigned char *dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
 
         //BCC2
-        unsigned char bcc2 = calculateBCC2(dataPackage, *dataPackageSize);
+        unsigned char bcc2 = calculateBCC2(dataPackage, *dataPackageSize-1);
+
+        dataPackage[*dataPackageSize-1] = bcc2;
 
         //stuffing
         unsigned char *stuffedData = stuffingData(dataPackage, dataPackageSize);
@@ -168,9 +170,9 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
             info[counter++] = stuffedData[i];
         }
 
-        info[counter++] = bcc2;
         info[counter++] = FLAG;
-
+        
+        
         write(fd, &info, counter);
 
         (seqN == 0) ? seqN++ : seqN--;
@@ -215,7 +217,7 @@ unsigned char *generateDataPackage(unsigned char *buffer, int *size, int n, int 
         dp[cnt++] = dataPackage[i];
     }
 
-    *size = dataSize;
+    *size = dataSize+1;
 
     return dp;
 }

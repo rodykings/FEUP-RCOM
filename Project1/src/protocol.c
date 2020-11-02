@@ -69,7 +69,10 @@ int llwrite(int fd, unsigned char *filename)
     /*Lê ficheiro*/
     fread(buffer, sizeof(unsigned char), fileSize, file);
 
-  /*  for (int i = 0; i < fileSize; i++)
+
+    //PRINT DO BUFFER
+    /*
+    for (int i = 0; i < fileSize; i++)
     {
         if (i % 256 == 0)
         {
@@ -82,10 +85,18 @@ int llwrite(int fd, unsigned char *filename)
     int *size = malloc(sizeof(int));
     unsigned char *controlPackage = generateControlPackage(fileSize, filename, size, 0x02);
 
+    
+
+
     //Calculo do BCC com informacao
-    unsigned char bcc2 = calculateBCC2(controlPackage, *size);
+    unsigned char bcc2 = calculateBCC2(controlPackage, *size-1);
+
+    controlPackage[*size-1] = bcc2;
+
+    
 
     unsigned char *stuffedControlPackage = stuffingData(controlPackage, size);
+   
 
     //Espera pelo Aknowledge - máquina de estados
     int seqN = 0;
@@ -137,9 +148,13 @@ int llwrite(int fd, unsigned char *filename)
     unsigned char *finalControlPackage = generateControlPackage(fileSize, filename, finalSize, 0x03);
 
     //Calculo do BCC com informacao
-    unsigned char finalBcc2 = calculateBCC2(finalControlPackage, *finalSize);
+    unsigned char finalBcc2 = calculateBCC2(finalControlPackage, *finalSize-1);
+
+    controlPackage[*size-1] = bcc2;
 
     unsigned char *stuffedFinalControlPackage = stuffingData(finalControlPackage, finalSize);
+
+
 
     //Espera pelo Aknowledge - máquina de estados
     int finalSeqN = 0;
@@ -204,8 +219,6 @@ int llread(int fd)
         printf("\nTRAMA %d-------------\n", i);
         unsigned char *data = stateMachine(fd, A_TRM, 0x00, I, size);
 
-        if (i == 1)
-            printf("SIZE: %d", *size - 2);
         // printf("SIZE: %d\n", *size);
         for (int d = 4; d < (*size) - 1; d++)
         {
