@@ -191,14 +191,12 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
             else if (status[0] == 0x1)
             {
                 printf("Trama RJ recebida - send Data!\n");
+                i--;
             }
             else
             {
                 printf("Waiting.... \n");
-                for (int i = 0; i < counter; i++)
-                {
-                    printf("%x:", info[i]);
-                }
+                i--;
             }
 
             (seqN == 0) ? seqN++ : seqN--;
