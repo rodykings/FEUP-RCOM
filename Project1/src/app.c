@@ -46,7 +46,8 @@ int main(int argc, char **argv)
         }
     }
 
-    llopen(fd, status);
+    if(llopen(fd, status)==-1) 
+        return -1;
 
     switch (status)
     {
