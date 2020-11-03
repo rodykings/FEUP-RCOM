@@ -201,7 +201,6 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
                 printf("Waiting.... \n");
                 fail = TRUE;
             }
-
             (seqN == 0) ? seqN++ : seqN--;
 
         } while (alarmFlag && numRetry < MAX_RETRY);
