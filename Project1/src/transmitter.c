@@ -68,8 +68,6 @@ void sendControlPackage(int fd, unsigned char *controlPackage, int *size, unsign
 
     buffer[counter++] = FLAG;
 
-    
-
     write(fd, &buffer, bufferSize);
 }
 
@@ -77,7 +75,7 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
 {
     int sizeFileName = strlen(fileName);
     int packSize = 9 * sizeof(unsigned char) + sizeFileName; //C,T1,L1,T2,L2(5) + sizeof(fileName) + tamanho campo filesize(4)
-    unsigned char *controlPackage = malloc(sizeof(unsigned char)*(packSize+1));
+    unsigned char *controlPackage = malloc(sizeof(unsigned char) * (packSize + 1));
 
     /* controlPackage = [C,T1,L1,V1,T2,L2,V2]
     * C = 2 (start) || C=3 (end)
@@ -99,7 +97,7 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
         controlPackage[9 + i] = fileName[i];
     }
 
-    *packageSize = packSize+1;
+    *packageSize = packSize + 1;
 
     return controlPackage;
 }
@@ -148,9 +146,9 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
         unsigned char *dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
 
         //BCC2
-        unsigned char bcc2 = calculateBCC2(dataPackage, *dataPackageSize-1);
+        unsigned char bcc2 = calculateBCC2(dataPackage, *dataPackageSize - 1);
 
-        dataPackage[*dataPackageSize-1] = bcc2;
+        dataPackage[*dataPackageSize - 1] = bcc2;
 
         //stuffing
         unsigned char *stuffedData = stuffingData(dataPackage, dataPackageSize);
@@ -162,27 +160,69 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
         }
 
         info[counter++] = FLAG;
-        
-        
-        write(fd, &info, counter);
+
+        do
+        {
+            write(fd, &info, counter);
+
+            alarmFlag = FALSE;
+            alarm(TIMEOUT);
+
+            int *size = malloc(sizeof(int));
+
+            int c_state;
+
+            if (seqN == 0)
+            {
+                c_state = 0x05; //Expects positive ACK -> controlField val = 0x05 (R = 0)
+            }
+            else
+            {
+                c_state = 0x85; //Expects positive ACK -> controlField val = 0x85 (R = 1)
+            }
+
+            unsigned char *status = stateMachine(fd, A_TRM, c_state, S, size);
+            if (status[0] == 0x00)
+            {
+                printf("Trama RR recebida!\n");
+                break;
+            }
+            else if (status[0] == 0x01)
+            {
+                printf("Trama RJ recebida!\n");
+            }
+            else
+            {
+                printf("Waiting....\n");
+                for (int i = 0; i < counter; i++)
+                {
+                    printf("%x:", info[i]);
+                }
+            }
+
+            (seqN == 0) ? seqN++ : seqN--;
+
+        } while (alarmFlag && numRetry < MAX_RETRY);
+
+        if (alarmFlag && numRetry == MAX_RETRY)
+            return;
 
         (seqN == 0) ? seqN++ : seqN--;
     }
 }
 
-int sendControl(int fd, int fileSize, unsigned char* fileName, int controlField){
+int sendControl(int fd, int fileSize, unsigned char *fileName, int controlField)
+{
     //Envia trama de controlo
     int *size = malloc(sizeof(int));
     unsigned char *controlPackage = generateControlPackage(fileSize, fileName, size, controlField);
 
-    
     //Calculo do BCC com informacao
-    unsigned char bcc2 = calculateBCC2(controlPackage, *size-1);
+    unsigned char bcc2 = calculateBCC2(controlPackage, *size - 1);
 
-    controlPackage[*size-1] = bcc2;
+    controlPackage[*size - 1] = bcc2;
 
     unsigned char *stuffedControlPackage = stuffingData(controlPackage, size);
-   
 
     //Espera pelo Aknowledge - máquina de estados
     int seqN = 0;
@@ -263,7 +303,7 @@ unsigned char *generateDataPackage(unsigned char *buffer, int *size, int n, int 
         dp[cnt++] = dataPackage[i];
     }
 
-    *size = dataSize+1;
+    *size = dataSize + 1;
 
     return dp;
 }

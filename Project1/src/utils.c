@@ -43,6 +43,8 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
     unsigned char c;
     int counter = 0;
     int seqN = 0;
+    unsigned char* res = malloc(sizeof(unsigned char));
+    res[0] = 0x03;
 
     while (state != STOP && !alarmFlag)
     {
@@ -79,16 +81,21 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                 }
                 else
                 {
+                    
+
                     if (c == FLAG)
                         state = FLAG_RCV;
+    
                     //REJ
                     else if (c == 0x81 || c == 0x01)
                     {
-                        return NULL;
+                        res[0] = 0x01;
+                        return res;
                     }
                     else
                     {
-                        return NULL;
+                        res[0] = 0x00; 
+                        return res;
                     }
                 }
             }
@@ -179,6 +186,10 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                 else
                 {
                     message[counter++] = c;
+                    if(counter == MAX_SIZE){
+                        counter = 0;
+                        state = START;
+                    }
                 }
             }
             break;
@@ -198,9 +209,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
     }
     else
     {
-        //TODO
-        unsigned char *akn = "A";
-        return akn;
+        return res;
     }
 }
 
