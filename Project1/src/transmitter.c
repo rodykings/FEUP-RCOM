@@ -126,13 +126,6 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
     info[0] = FLAG;
     info[1] = A_TRM;
 
-    // for(int i=0; i<size; i++){
-    //     printf("%x:", buffer[i]);
-    //     if(size%256==0){
-    //         printf("\n----------\n");
-    //     }
-    // }
-
     for (int i = 0; i < nTramas; i++)
     {
 
@@ -177,6 +170,61 @@ unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
 
         (seqN == 0) ? seqN++ : seqN--;
     }
+}
+
+int sendControl(int fd, int fileSize, unsigned char* fileName, int controlField){
+    //Envia trama de controlo
+    int *size = malloc(sizeof(int));
+    unsigned char *controlPackage = generateControlPackage(fileSize, fileName, size, controlField);
+
+    
+    //Calculo do BCC com informacao
+    unsigned char bcc2 = calculateBCC2(controlPackage, *size-1);
+
+    controlPackage[*size-1] = bcc2;
+
+    unsigned char *stuffedControlPackage = stuffingData(controlPackage, size);
+   
+
+    //Espera pelo Aknowledge - máquina de estados
+    int seqN = 0;
+    do
+    {
+        sendControlPackage(fd, stuffedControlPackage, size, bcc2, seqN);
+
+        alarmFlag = FALSE;
+        alarm(TIMEOUT);
+
+        int *size = malloc(sizeof(int));
+
+        int c_state;
+
+        if (seqN == 0)
+        {
+            c_state = 0x05; //Expects positive ACK -> controlField val = 0x05 (R = 0)
+        }
+        else
+        {
+            c_state = 0x85; //Expects positive ACK -> controlField val = 0x85 (R = 1)
+        }
+
+        unsigned char *status = stateMachine(fd, A_TRM, c_state, S, size);
+        if (status[0] == 'A')
+        {
+            printf("Trama RR recebida!\n");
+            break;
+        }
+        else
+        {
+            printf("Trama RJ recebida!\n");
+        }
+
+        (seqN == 0) ? seqN++ : seqN--;
+
+    } while (alarmFlag && numRetry < MAX_RETRY);
+    printf("\nTrama I de controlo enviada!\n");
+
+    return seqN;
 }
 
 unsigned char *generateDataPackage(unsigned char *buffer, int *size, int n, int l1, int l2)

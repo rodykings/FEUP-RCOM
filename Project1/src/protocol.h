@@ -8,24 +8,8 @@
 
 int llopen(int fd, int status);
 
+void llwrite(int fd, FILE* file, char* filename);
 
-/**
- * @brief 
- * 
- * @param fd identificador da ligação de dados
- * @param buffer array de caracteres a transmitir
- * @param length comprimento do array de caracteres
- * @return int número de caracteres escritos
- */
-int llwrite(int fd, unsigned char * filename);
-
-/**
- * @brief 
- * 
- * @param fd identificador da ligação de dados
- * @param buffer array de caracteres recebidos
- * @return int comprimento do array (número de caracteres lidos)
- */
 int llread(int fd);
 
 void llclose(int fd, int status);

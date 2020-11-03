@@ -73,7 +73,6 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
             if (type == S)
             {
                 //ACK
-                //printf("Control field: %x\n", controlField);
                 if (c == controlField)
                 {
                     state = C_RCV;
@@ -85,7 +84,6 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                     //REJ
                     else if (c == 0x81 || c == 0x01)
                     {
-                        printf("RECEBEU 0x81 ou 0x01\n");
                         return NULL;
                     }
                     else
@@ -133,14 +131,10 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                 {
 
                     *size = counter;
-                    
+
                     message = destuffingData(message, size);
 
-                    for(int i=0; i < (*size); i++){
-                        printf("%x:", message[i]);
-                    }
-
-                    unsigned char bcc2 = message[*size-1];
+                    unsigned char bcc2 = message[*size - 1];
 
                     int sizeBcc = *size - 1;
                     unsigned char calcBcc2 = calculateBCC2(message, sizeBcc);
@@ -157,9 +151,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                         {
                             positiveACK = 0x85;
                         }
-                        // printf("Positive ACK sent: %x\n", positiveACK);
                         sendControlMsg(fd, A_TRM, positiveACK);
-                        printf("Trama RR enviada!\n");
                     }
                     else
                     {
@@ -173,14 +165,9 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                         {
                             negativeACK = 0x81;
                         }
-                        //  printf("Negative ACK sent: %x\n", negativeACK);
                         sendControlMsg(fd, A_TRM, negativeACK);
-                        printf("Trama RJ enviada!\n");
                     }
                 }
-
-                printf("\n------------\n");
-
                 state = STOP;
             }
             else
@@ -317,7 +304,7 @@ unsigned char *destuffingData(unsigned char *buffer, int *size)
     {
         db[j] = destuffedData[j];
     }
-    //counter++;
+
     *size = counter;
 
     return db;

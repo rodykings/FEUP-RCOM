@@ -20,12 +20,7 @@ fileInfo receiveControlPackage(int fd)
     fileInfo fileinfo;
     int controlPackageStatus = checkControlPackage(controlPackage, sizeControlPackage, &fileinfo);
 
-    printf("Nome ficheiro: %s\n", fileinfo.filename);
-    printf("Tamanho ficheiro: %d\n", fileinfo.size);
-
     printf("\nTrama I de controlo recebida - STATUS: %x\n", controlPackageStatus);
-
-    //createFile(fileinfo);
 
     return fileinfo;
 };
@@ -65,7 +60,13 @@ int checkControlPackage(unsigned char *controlPackage, int *size, fileInfo *file
 
 void createFile(fileInfo info, unsigned char *fileData)
 {
-    FILE *fp = fopen("file.gif", "wb+");
+
+    char path[9+strlen(info.filename)];
+    strcpy(path, "received_");
+    strcat(path, info.filename);
+    printf("PATH: %s\n", path);
+    FILE *fp = fopen(path, "wb+");
+    
     fwrite((void *)fileData, 1, info.size, fp);
     fclose(fp);
 }

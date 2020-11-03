@@ -32,13 +32,36 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
+    FILE *file;
+    if (status == TRANSMITTER)
+    {
+        if (!(file = fopen(argv[3], "rb")))
+        {
+            printf("Error opening the file or the file does not exist!\n");
+            return (-1);
+        }
+        else
+        {
+            printf("Reading file...\n");
+        }
+    }
+
     llopen(fd, status);
-    
-    if(status == TRANSMITTER)
-        llwrite(fd, argv[3]);
-    if(status == RECEIVER)
-        llread(fd);
-    
+
+    switch (status)
+    {
+        case TRANSMITTER :
+            llwrite(fd, file, argv[3]);
+            break;
+        case RECEIVER:
+            llread(fd); 
+            break;
+
+        default:
+            return -1;
+            break;
+    }
+
     llclose(fd, status);
 
     return 0;
