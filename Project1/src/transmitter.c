@@ -182,14 +182,14 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
             }
 
             unsigned char *status = stateMachine(fd, A_TRM, c_state, S, size);
-            if (status[0] == 0x00)
+            if (status[0] == 0x0)
             {
                 printf("Trama RR recebida!\n");
                 break;
             }
-            else if (status[0] == 0x01)
+            else if (status[0] == 0x1)
             {
-                printf("Trama RJ recebida!\n");
+                printf("Trama RJ recebida - send Data!\n");
             }
             else
             {
@@ -247,14 +247,14 @@ int sendControl(int fd, int fileSize, unsigned char *fileName, int controlField)
         }
 
         unsigned char *status = stateMachine(fd, A_TRM, c_state, S, size);
-        if (status[0] == 'A')
+        if (status[0] == 0x0)
         {
             printf("Trama RR recebida!\n");
             break;
         }
-        else
+        else if(status[0] == 0x1) 
         {
-            printf("Trama RJ recebida!\n");
+            printf("Trama RJ recebida - send Control!\n");
         }
 
         (seqN == 0) ? seqN++ : seqN--;

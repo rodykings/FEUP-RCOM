@@ -44,7 +44,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
     int counter = 0;
     int seqN = 0;
     unsigned char* res = malloc(sizeof(unsigned char));
-    res[0] = 0x03;
+    res[0] = 0x3;
 
     while (state != STOP && !alarmFlag)
     {
@@ -89,12 +89,12 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                     //REJ
                     else if (c == 0x81 || c == 0x01)
                     {
-                        res[0] = 0x01;
+                        res[0] = 0x1;
                         return res;
                     }
                     else
                     {
-                        res[0] = 0x00; 
+                        res[0] = 0x0; 
                         return res;
                     }
                 }
