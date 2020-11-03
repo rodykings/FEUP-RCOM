@@ -206,8 +206,9 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
         } while (alarmFlag && numRetry < MAX_RETRY);
 
-        printf("FAIL %d\n", fail);
+        
         if(fail == TRUE){
+            printf("FAIL %d\n", fail);
             i--;
             fail == FALSE;
         }
