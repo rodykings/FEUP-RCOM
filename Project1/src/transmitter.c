@@ -165,6 +165,7 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
         do
         {
+
             write(fd, &info, counter);
 
             alarmFlag = FALSE;
@@ -205,8 +206,10 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
         } while (alarmFlag && numRetry < MAX_RETRY);
 
+        printf("FAIL %d\n", fail);
         if(fail == TRUE){
             i--;
+            fail == FALSE;
         }
 
         (seqN == 0) ? seqN++ : seqN--;
