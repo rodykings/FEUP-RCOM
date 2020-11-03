@@ -173,6 +173,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                             negativeACK = 0x81;
                         }
                         sendControlMsg(fd, A_TRM, negativeACK);
+                        printf("Enviei REJ\n");
                     }
                 }
                 state = STOP;
@@ -189,6 +190,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                     if(counter == MAX_SIZE){
                         counter = 0;
                         state = START;
+                        free(message);
                     }
                 }
             }
