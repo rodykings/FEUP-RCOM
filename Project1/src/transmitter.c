@@ -194,23 +194,14 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
             else if (status[0] == 0x1)
             {
                 printf("Trama RJ recebida - send Data!\n");
-                fail = TRUE;
             }
             else
             {
                 printf("Waiting.... \n");
-                fail = TRUE;
             }
             (seqN == 0) ? seqN++ : seqN--;
 
         } while (alarmFlag && numRetry < MAX_RETRY);
-
-        
-        if(fail == TRUE){
-            printf("FAIL %d\n", fail);
-            i--;
-            fail == FALSE;
-        }
 
         (seqN == 0) ? seqN++ : seqN--;
     }
