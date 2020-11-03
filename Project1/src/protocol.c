@@ -57,7 +57,7 @@ int llopen(int fd, int status)
     return 0;
 }
 
-void llwrite(int fd, FILE* file, char* filename)
+int llwrite(int fd, FILE* file, char* filename)
 {
     int fileSize = getFileSize(file);
 
@@ -70,6 +70,8 @@ void llwrite(int fd, FILE* file, char* filename)
     sendData(fd, buffer, fileSize, seqN);
 
     sendControl(fd, fileSize, filename, 0x03);
+
+    return 0;
 }
 
 int llread(int fd)
@@ -105,7 +107,7 @@ int llread(int fd)
     return 0;
 }
 
-void llclose(int fd, int status)
+int llclose(int fd, int status)
 {
     if(status == TRANSMITTER){
         closeConnection(fd);
@@ -114,4 +116,6 @@ void llclose(int fd, int status)
         handleDisconnection(fd);
     }
     close(fd);
+
+    return 0;
 }

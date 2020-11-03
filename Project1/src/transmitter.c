@@ -37,7 +37,7 @@ int setTransmitter(int fd)
     }
 }
 
-int sendControlPackage(int fd, unsigned char *controlPackage, int *size, unsigned char bcc2, int s)
+void sendControlPackage(int fd, unsigned char *controlPackage, int *size, unsigned char bcc2, int s)
 {
 
     /*
@@ -71,8 +71,6 @@ int sendControlPackage(int fd, unsigned char *controlPackage, int *size, unsigne
     
 
     write(fd, &buffer, bufferSize);
-
-    return counter;
 }
 
 unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int *packageSize, int controlfield)
@@ -106,7 +104,7 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
     return controlPackage;
 }
 
-unsigned char *sendData(int fd, unsigned char *buffer, int size, int seqN)
+void sendData(int fd, unsigned char *buffer, int size, int seqN)
 {
 
     //Cálculo nr tramas

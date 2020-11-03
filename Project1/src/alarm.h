@@ -10,4 +10,8 @@
 extern int numRetry;
 extern int alarmFlag;
 
+/**
+ * @brief Runs when alarm is triggered
+ * 
+ */
 void alarmHandler();

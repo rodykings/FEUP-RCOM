@@ -50,9 +50,61 @@ typedef struct {
     int size;
 }fileInfo;
 
+
+
+/**
+ * @brief Get file size
+ * 
+ * @param file file descriptor
+ * @return file size
+ */
 int getFileSize(FILE* file);
+
+/**
+ * @brief Send Control Message
+ * 
+ * @param fd serial port descriptor
+ * @param header header (A)
+ * @param controlField control field (C)
+ */
 void sendControlMsg(int fd, unsigned char header, unsigned char controlField);
+
+/**
+ * @brief Message State Machine
+ * 
+ * @param fd serial port descriptor
+ * @param header header (A)
+ * @param controlField control field (C)
+ * @param type I or S
+ * @param size size of message
+ * @return pointer to data from message
+ */
 unsigned char* stateMachine(int fd, unsigned char header, char controlField, int type, int* size);
+
+/**
+ * @brief Stuff Data
+ * 
+ * @param buffer buffer to be stuffed
+ * @param size size of buffer
+ * @return stuffed data 
+ */
 unsigned char* stuffingData(unsigned char* buffer, int* size);
+
+/**
+ * @brief Destuff Data
+ * 
+ * @param buffer buffer to be destuffed
+ * @param size size of buffer
+ * @return destuffed data
+ */
 unsigned char* destuffingData(unsigned char *buffer, int *size);
+
+
+/**
+ * @brief Calculate BCC2
+ * 
+ * @param buffer buffer to calculate bcc
+ * @param size size of buffer
+ * @return bcc2 value 
+ */
 unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size);
