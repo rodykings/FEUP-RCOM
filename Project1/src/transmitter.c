@@ -182,6 +182,7 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
             }
 
             unsigned char *status = stateMachine(fd, A_TRM, c_state, S, size);
+            printf("Status: %x\n", status[0]);
             if (status[0] == 0x0)
             {
                 printf("Trama RR recebida!\n");
@@ -193,7 +194,7 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
             }
             else
             {
-                printf("Waiting....\n");
+                printf("Waiting.... \n");
                 for (int i = 0; i < counter; i++)
                 {
                     printf("%x:", info[i]);
