@@ -78,14 +78,15 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                 if (c == controlField)
                 {
                     state = C_RCV;
+                    res[0] = 0x0;
                 }
                 else
                 {
-                    
-
-                    if (c == FLAG)
+                    if (c == FLAG){
                         state = FLAG_RCV;
-    
+                        res[0] = 0x1;
+                        return res;
+                    }
                     //REJ
                     else if (c == 0x81 || c == 0x01)
                     {
