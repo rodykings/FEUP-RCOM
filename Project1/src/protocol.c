@@ -57,7 +57,7 @@ int llopen(int fd, int status)
     return 0;
 }
 
-int llwrite(int fd, FILE* file, char* filename)
+int llwrite(int fd, FILE *file, char *filename)
 {
     int fileSize = getFileSize(file);
 
@@ -87,17 +87,28 @@ int llread(int fd)
     unsigned char *fileData = malloc(sizeof(unsigned char) * dataInfo.size);
 
     int counter = 0;
+    int n;
+    int currentN;
     for (int i = 0; i < nTramas; i++)
     {
 
         unsigned char *data = stateMachine(fd, A_TRM, 0x00, I, size);
+        currentN = data[1];
 
-        for (int d = 4; d < (*size) - 1; d++)
+        if (currentN != n)
         {
-            fileData[counter++] = data[d];
+            printf("%d\n", data[1]);
+            for (int d = 4; d < (*size) - 1; d++)
+            {
+                fileData[counter++] = data[d];
+            }
+        }else if(data == NULL){
+            i--;
+        }else{
+            i--;
         }
 
-        if (data == NULL) i--;
+        n = currentN;
     }
 
     fileInfo dataInfoFinal = receiveControlPackage(fd);
@@ -109,10 +120,12 @@ int llread(int fd)
 
 int llclose(int fd, int status)
 {
-    if(status == TRANSMITTER){
+    if (status == TRANSMITTER)
+    {
         closeConnection(fd);
     }
-    if(status == RECEIVER){
+    if (status == RECEIVER)
+    {
         handleDisconnection(fd);
     }
     close(fd);

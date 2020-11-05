@@ -122,9 +122,12 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
     info[0] = FLAG;
     info[1] = A_TRM;
 
+    int test1 = FALSE;
+    int test2 = FALSE;
+    int test3 = FALSE;
+
     for (int i = 0; i < nTramas; i++)
     {
-
         int counter = 2;
 
         //send
@@ -143,10 +146,30 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
         int *dataPackageSize = malloc(sizeof(int));
         *dataPackageSize = size;
 
+
+        if(i == 3 && test1 == FALSE){
+            i--;
+            sleep(2);
+            test1 = TRUE;
+        }
+
+        if(i == 7 && test2 == FALSE){
+            i--;
+            sleep(1);
+            test2 = TRUE;
+        }
+
+        if(i == 10 && test3 == FALSE){
+            i--;
+            sleep(5);
+            test3 = TRUE;
+        }
+
         unsigned char *dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
 
         //BCC2
         unsigned char bcc2 = calculateBCC2(dataPackage, *dataPackageSize - 1);
+
 
         dataPackage[*dataPackageSize - 1] = bcc2;
 
