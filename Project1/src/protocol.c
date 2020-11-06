@@ -111,6 +111,8 @@ int llread(int fd)
         }
     }
 
+    printf("SIZE: %x", counter);
+
     fileInfo dataInfoFinal = receiveControlPackage(fd);
 
     createFile(dataInfo, fileData);
