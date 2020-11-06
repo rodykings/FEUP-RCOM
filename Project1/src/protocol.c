@@ -97,11 +97,12 @@ int llread(int fd)
 
         if (currentN == n+1)
         {
-            printf("%d\n", data[1]);
+            
             for (int d = 4; d < (*size) - 1; d++)
             {
                 fileData[counter++] = data[d];
             }
+            printf("TRAMA - %d | SIZE: %d\n", data[1], counter);
             n=currentN;
 
         }else{
