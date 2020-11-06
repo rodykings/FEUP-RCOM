@@ -79,8 +79,10 @@ int llread(int fd)
     fileInfo dataInfo = receiveControlPackage(fd);
 
     int nTramas = dataInfo.size / 256;
-    if (dataInfo.size % 256 != 0)
-        nTramas++;
+    nTramas++;
+
+    int l1 = dataInfo.size / 256;
+    int l2 = dataInfo.size % 256;
 
     int *size = malloc(sizeof(int));
 
@@ -97,13 +99,27 @@ int llread(int fd)
 
         if (currentN == n+1)
         {
-            
-            for (int d = 4; d < (*size) - 1; d++)
-            {
-                fileData[counter++] = data[d];
+            if(i<nTramas-1 && *size >= 255){
+                int cnt = 0;
+                for (int d = 4; d < (*size) - 1; d++)
+                {
+                    cnt++;
+                    fileData[counter++] = data[d];
+                }
+                printf("TRAMA - %d | SIZE: %d\n", data[1], cnt);
+                n=currentN;
+            }else if(i == nTramas-1 && *size>=l2-1){
+                int cnt = 0;
+                for (int d = 4; d < (*size) - 1; d++)
+                {
+                    cnt++;
+                    fileData[counter++] = data[d];
+                }
+                printf("TRAMA - %d | SIZE: %d\n", data[1], cnt);
+                n=currentN;
+            }else{
+                i--;
             }
-            printf("TRAMA - %d | SIZE: %d\n", data[1], counter);
-            n=currentN;
 
         }else{
             i--;
