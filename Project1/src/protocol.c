@@ -87,28 +87,28 @@ int llread(int fd)
     unsigned char *fileData = malloc(sizeof(unsigned char) * dataInfo.size);
 
     int counter = 0;
-    int n;
-    int currentN;
+    int n = -1;
+    int currentN = 0;
     for (int i = 0; i < nTramas; i++)
     {
 
         unsigned char *data = stateMachine(fd, A_TRM, 0x00, I, size);
         currentN = data[1];
 
-        if (currentN != n)
+        if (currentN == n+1)
         {
             printf("%d\n", data[1]);
             for (int d = 4; d < (*size) - 1; d++)
             {
                 fileData[counter++] = data[d];
             }
+            n=currentN;
+
         }else if(data == NULL){
             i--;
         }else{
             i--;
         }
-
-        n = currentN;
     }
 
     fileInfo dataInfoFinal = receiveControlPackage(fd);
