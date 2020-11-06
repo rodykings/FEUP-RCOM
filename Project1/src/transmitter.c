@@ -124,6 +124,7 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
     int test1 = FALSE;
     int test2 = FALSE;
+    int test21 = FALSE; 
     int test3 = FALSE;
 
     for (int i = 0; i < nTramas; i++)
@@ -145,25 +146,6 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
         int *dataPackageSize = malloc(sizeof(int));
         *dataPackageSize = size;
-
-
-        if(i == 3 && test1 == FALSE){
-            i--;
-            sleep(2);
-            test1 = TRUE;
-        }
-
-        if(i == 7 && test2 == FALSE){
-            i--;
-            sleep(1);
-            test2 = TRUE;
-        }
-
-        if(i == 10 && test3 == FALSE){
-            i--;
-            sleep(5);
-            test3 = TRUE;
-        }
 
         unsigned char *dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
 
