@@ -166,8 +166,6 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
         info[counter++] = FLAG;
 
-        int fail = FALSE;
-
         do
         {
 
@@ -199,10 +197,12 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
             else if (status[0] == 0x1)
             {
                 printf("Trama RJ recebida - send Data!\n");
+                i--;
             }
             else
             {
                 printf("Waiting.... \n");
+                i--;
             }
             (seqN == 0) ? seqN++ : seqN--;
 

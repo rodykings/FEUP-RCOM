@@ -104,14 +104,12 @@ int llread(int fd)
             }
             n=currentN;
 
-        }else if(data == NULL){
-            i--;
         }else{
             i--;
         }
     }
 
-    printf("SIZE: %x", counter);
+    printf("SIZE: %d", counter);
 
     fileInfo dataInfoFinal = receiveControlPackage(fd);
 
