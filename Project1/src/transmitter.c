@@ -122,52 +122,45 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
     info[0] = FLAG;
     info[1] = A_TRM;
 
-    int test1 = FALSE;
-    int test2 = FALSE;
-    int test21 = FALSE; 
-    int test3 = FALSE;
-
     for (int i = 0; i < nTramas; i++)
     {
-        int counter = 2;
-
-        //send
-        if (seqN == 0)
-        {
-            info[counter++] = 0x00;
-        }
-        else
-        {
-            info[counter++] = 0x40;
-        }
-
-        //BCC
-        info[counter++] = info[1] ^ info[2];
-
-        int *dataPackageSize = malloc(sizeof(int));
-        *dataPackageSize = size;
-
-        unsigned char *dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
-
-        //BCC2
-        unsigned char bcc2 = calculateBCC2(dataPackage, *dataPackageSize - 1);
-
-
-        dataPackage[*dataPackageSize - 1] = bcc2;
-
-        //stuffing
-        unsigned char *stuffedData = stuffingData(dataPackage, dataPackageSize);
-
-        //data
-        for (int j = 0; j < (*dataPackageSize); j++)
-        {
-            info[counter++] = stuffedData[j];
-        }
-
-        info[counter++] = FLAG;
-
         do
         {
+            int counter = 2;
+
+            //send
+            if (seqN == 0)
+            {
+                info[counter++] = 0x00;
+            }
+            else
+            {
+                info[counter++] = 0x40;
+            }
+
+            //BCC
+            info[counter++] = info[1] ^ info[2];
+
+            int *dataPackageSize = malloc(sizeof(int));
+            *dataPackageSize = size;
+
+            unsigned char *dataPackage = generateDataPackage(buffer, dataPackageSize, i, l1, l2);
+
+            //BCC2
+            unsigned char bcc2 = calculateBCC2(dataPackage, *dataPackageSize - 1);
+
+            dataPackage[*dataPackageSize - 1] = bcc2;
+
+            //stuffing
+            unsigned char *stuffedData = stuffingData(dataPackage, dataPackageSize);
+
+            //data
+            for (int j = 0; j < (*dataPackageSize); j++)
+            {
+                info[counter++] = stuffedData[j];
+            }
+
+            info[counter++] = FLAG;
 
             write(fd, &info, counter);
 
@@ -251,7 +244,7 @@ int sendControl(int fd, int fileSize, unsigned char *fileName, int controlField)
             printf("Trama RR recebida!\n");
             break;
         }
-        else if(status[0] == 0x1) 
+        else if (status[0] == 0x1)
         {
             printf("Trama RJ recebida - send Control!\n");
         }

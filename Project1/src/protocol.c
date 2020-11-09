@@ -79,11 +79,15 @@ int llread(int fd)
     fileInfo dataInfo = receiveControlPackage(fd);
 
     int nTramas = dataInfo.size / 256;
-    nTramas++;
-
+    
     int l1 = dataInfo.size / 256;
     int l2 = dataInfo.size % 256;
 
+    if(l2!=0){
+        nTramas++;
+    }
+
+    printf("NTRMAS: %d", nTramas);
     int *size = malloc(sizeof(int));
 
     unsigned char *fileData = malloc(sizeof(unsigned char) * dataInfo.size);
@@ -91,15 +95,18 @@ int llread(int fd)
     int counter = 0;
     int n = -1;
     int currentN = 0;
+    int fail = FALSE;
     for (int i = 0; i < nTramas; i++)
     {
 
         unsigned char *data = stateMachine(fd, A_TRM, 0x00, I, size);
         currentN = data[1];
 
-        if (currentN == n+1)
+
+        if (currentN == n + 1)
         {
-            if(i<nTramas-1 && *size >= 255){
+            if (i < nTramas - 1 && *size >= 255)
+            {
                 int cnt = 0;
                 for (int d = 4; d < (*size) - 1; d++)
                 {
@@ -107,22 +114,42 @@ int llread(int fd)
                     fileData[counter++] = data[d];
                 }
                 printf("TRAMA - %d | SIZE: %d\n", data[1], cnt);
-                n=currentN;
-            }else if(i == nTramas-1 && *size>=l2-1){
+                fail = FALSE;
+                n = currentN;
+            }
+            else if (i == nTramas - 1 && *size >= l2 - 1)
+            {
                 int cnt = 0;
                 for (int d = 4; d < (*size) - 1; d++)
                 {
                     cnt++;
                     fileData[counter++] = data[d];
                 }
-                printf("TRAMA - %d | SIZE: %d\n", data[1], cnt);
-                n=currentN;
-            }else{
+                printf("TRAMA ULTIMA - %d | SIZE: %d\n", data[1], cnt);
+                n = currentN;
+            }
+            else
+            {
+                printf("trama incorreta\n");
+                if (fail == FALSE)
+                {
+                    fail = TRUE;
+                    i--;
+                }
+            }
+        }
+        else
+        {
+            //printf("FALHOU CURRENTN\n");
+            if (fail == FALSE)
+            {
+                fail = TRUE;
                 i--;
             }
+        }
 
-        }else{
-            i--;
+        if(currentN == 255){
+            n = -1;
         }
     }
 
