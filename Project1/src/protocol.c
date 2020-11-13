@@ -134,11 +134,7 @@ int llread(int fd)
             else
             {
                 printf("trama incorreta\n");
-                if (fail == FALSE)
-                {
-                    fail = TRUE;
-                    i--;
-                }
+                i--;
             }
         }else if(currentN == n){//duplicado
             printf("RECEBI DUPLICADO\n");
