@@ -140,6 +140,9 @@ int llread(int fd)
                     i--;
                 }
             }
+        }else if(currentN == n){//duplicado
+            printf("RECEBI DUPLICADO\n");
+            i--;
         }
         else
         {
