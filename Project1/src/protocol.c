@@ -108,7 +108,7 @@ int llread(int fd)
 
         if (currentN == n + 1)
         {
-            if (i < nTramas - 1 && *size >= 255)
+            if (i < nTramas - 1 && (*size >= 255 && *size <= 261))
             {
                 int cnt = 0;
                 for (int d = 4; d < (*size) - 1; d++)
@@ -120,7 +120,7 @@ int llread(int fd)
                 fail = FALSE;
                 n = currentN;
             }
-            else if (i == nTramas - 1 && *size >= l2 - 1)
+            else if (i == nTramas - 1 && (*size >= l2 && *size <= l2+5))
             {
                 int cnt = 0;
                 for (int d = 4; d < (*size) - 1; d++)
