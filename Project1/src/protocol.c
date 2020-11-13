@@ -133,7 +133,7 @@ int llread(int fd)
             }
             else if(*size>261){
                 int cnt = 0;
-                for (int d = 4; d < (*size) - 1; d++)
+                for (int d = (*size)-257; d < (*size) - 1; d++)
                 {
                     cnt++;
                     fileData[counter++] = data[d];
