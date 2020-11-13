@@ -146,6 +146,7 @@ int llread(int fd)
             {
                 printf("%d", *size);
                 printf("trama incorreta\n");
+                sendControlMsg(fd, A_TRM, 0x01);
                 i--;
             }
         }else if(currentN == n){//duplicado

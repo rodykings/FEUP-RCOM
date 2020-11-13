@@ -165,10 +165,11 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
             info[counter++] = FLAG;
 
-            write(fd, &info, counter);
 
             alarmFlag = FALSE;
             alarm(TIMEOUT);
+
+            write(fd, &info, counter);
 
             int *size = malloc(sizeof(int));
 
@@ -198,6 +199,7 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
             {
                 printf("Waiting.... \n");
             }
+
             (seqN == 0) ? seqN++ : seqN--;
 
         } while (alarmFlag && numRetry < MAX_RETRY);
