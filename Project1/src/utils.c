@@ -65,14 +65,17 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
             }
             else
             {
-                state=STOP;
+                if (c == FLAG)
+                    state = FLAG_RCV;
+                else
+                    state = STOP;
             }
             break;
         case A_RCV:
             if (type == S)
             {
                 //ACK
-                if (c == 0x05 || c == 0x85 || c == controlField)
+                if (c == controlField || c == 0x85 || c == 0x05)
                 {
                     state = C_RCV;
                     res[0] = 0x0;
@@ -113,18 +116,21 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                 }
                 else
                 {
-                    state=STOP;
+                    if (c == FLAG)
+                        state = FLAG_RCV;
+                    else
+                        state = START;
                 }
             }
 
             break;
         case C_RCV:
-            if (c == (A_TRM ^ controlField)) //BCC = A_TRM ^ C
+            if (c == (A_TRM ^ controlField) || c== (A_TRM ^ 0x05) || c == (A_TRM ^ 0x85)) //BCC = A_TRM ^ C
             {
                 state = BCC_OK;
             }
             else
-                state = STOP;
+                state = START;
             break;
         case BCC_OK:
             if (c == FLAG)
@@ -153,7 +159,6 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                         {
                             positiveACK = 0x85;
                         }
-                        printf("ENVIE POSITIVE ACK\n");
                         sendControlMsg(fd, A_TRM, positiveACK);
                     }
                     else
@@ -178,13 +183,15 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
             {
                 if (type == S)
                 {
-                    state = STOP;
+                    state = START;
                 }
                 else
                 {
                     message[counter++] = c;
                     if(counter == MAX_SIZE){
-                        state=STOP;
+                        counter = 0;
+                        state = START;
+                        free(message);
                     }
                 }
             }
