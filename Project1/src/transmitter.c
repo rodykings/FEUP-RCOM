@@ -194,6 +194,7 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
             else if (status[0] == 0x1)
             {
                 printf("Trama RJ recebida - send Data!\n");
+                printf("ALARM FLAG %d numretry %d", alarmFlag, numRetry);
             }
             else
             {
