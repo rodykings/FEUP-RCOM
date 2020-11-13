@@ -144,7 +144,7 @@ int llread(int fd)
             }
             else
             {
-                printf("%d", size);
+                printf("%d", *size);
                 printf("trama incorreta\n");
                 i--;
             }

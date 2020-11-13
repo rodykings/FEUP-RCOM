@@ -43,7 +43,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
     unsigned char c;
     int counter = 0;
     int seqN = 0;
-    unsigned char* res = malloc(sizeof(unsigned char));
+    unsigned char *res = malloc(sizeof(unsigned char));
     res[0] = 0x3;
 
     while (state != STOP && !alarmFlag)
@@ -59,7 +59,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
             }
             break;
         case FLAG_RCV:
-            counter = 0; 
+            counter = 0;
             if (c == header)
             {
                 state = A_RCV;
@@ -83,7 +83,8 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                 }
                 else
                 {
-                    if (c == FLAG){
+                    if (c == FLAG)
+                    {
                         state = FLAG_RCV;
                         res[0] = 0x1;
                         return res;
@@ -96,7 +97,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                     }
                     else
                     {
-                        res[0] = 0x0; 
+                        res[0] = 0x0;
                         return res;
                     }
                 }
@@ -126,7 +127,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
 
             break;
         case C_RCV:
-            if (c == (A_TRM ^ controlField) || c== (A_TRM ^ 0x05) || c == (A_TRM ^ 0x85)) //BCC = A_TRM ^ C
+            if (c == (A_TRM ^ controlField) || c == (A_TRM ^ 0x05) || c == (A_TRM ^ 0x85)) //BCC = A_TRM ^ C
             {
                 state = BCC_OK;
             }
@@ -148,23 +149,32 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                     int sizeBcc = *size - 1;
                     unsigned char calcBcc2 = calculateBCC2(message, sizeBcc);
 
+                    unsigned char positiveACK; // R0000101 -> 0 ou 1
+                    unsigned char negativeACK; // R0000001 -> 0 ou 1
                     if (bcc2 == calcBcc2)
                     {
-                        unsigned char positiveACK; // R0000101 -> 0 ou 1
 
                         if (seqN == 0)
                         {
                             positiveACK = 0x05;
+                            negativeACK = 0x01;
                         }
                         else
                         {
                             positiveACK = 0x85;
+                            negativeACK = 0x81;
                         }
-                        sendControlMsg(fd, A_TRM, positiveACK);
+                        if (counter <= 255)
+                        {
+                            sendControlMsg(fd, A_TRM, negativeACK);
+                        }
+                        else
+                        {
+                            sendControlMsg(fd, A_TRM, positiveACK);
+                        }
                     }
                     else
                     {
-                        unsigned char negativeACK; // R0000001 -> 0 ou 1
 
                         if (seqN == 0)
                         {
@@ -189,7 +199,8 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                 else
                 {
                     message[counter++] = c;
-                    if(counter == MAX_SIZE){
+                    if (counter == MAX_SIZE)
+                    {
                         counter = 0;
                         state = START;
                         free(message);
