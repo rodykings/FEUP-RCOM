@@ -124,6 +124,9 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
     for (int i = 0; i < nTramas; i++)
     {
+        (void)signal(SIGALRM, alarmHandler);
+        numRetry = 0;
+
         do
         {
             int counter = 2;
@@ -201,6 +204,16 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
         (seqN == 0) ? seqN++ : seqN--;
     }
+
+    if (alarmFlag && numRetry == MAX_RETRY)
+        return;
+
+    else
+    {
+        alarmFlag = FALSE;
+        numRetry = 0;
+        return;
+    }
 }
 
 int sendControl(int fd, int fileSize, unsigned char *fileName, int controlField)
@@ -252,9 +265,17 @@ int sendControl(int fd, int fileSize, unsigned char *fileName, int controlField)
         (seqN == 0) ? seqN++ : seqN--;
 
     } while (alarmFlag && numRetry < MAX_RETRY);
-    printf("\nTrama I de controlo enviada!\n");
 
-    return seqN;
+    if (alarmFlag && numRetry == MAX_RETRY)
+        return -1;
+
+    else
+    {
+        printf("\nTrama I de controlo enviada!\n");
+        alarmFlag = FALSE;
+        numRetry = 0;
+        return seqN;
+    }
 }
 
 unsigned char *generateDataPackage(unsigned char *buffer, int *size, int n, int l1, int l2)
@@ -316,7 +337,17 @@ void closeConnection(int fd)
 
         sendControlMsg(fd, A_REC, C_UA);
         printf("Trama UA enviada!\n");
-        printf("Connection closed!\n");
 
     } while (alarmFlag && numRetry < MAX_RETRY);
+
+    if (alarmFlag && numRetry == MAX_RETRY)
+        return;
+
+    else
+    {
+        printf("Connection closed!\n");
+        alarmFlag = FALSE;
+        numRetry = 0;
+        return;
+    }
 }

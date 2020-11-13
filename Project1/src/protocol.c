@@ -16,7 +16,7 @@ int llopen(int fd, int status)
     /* set input mode (non-canonical, no echo,...) */
     newtio.c_lflag = 0;
 
-    newtio.c_cc[VTIME] = 1; /* inter-unsigned character timer unused */
+    newtio.c_cc[VTIME] = 3; /* inter-unsigned character timer unused */
     newtio.c_cc[VMIN] = 0;  /* blocking read until 5 unsigned chars received */
 
     /*
@@ -99,9 +99,12 @@ int llread(int fd)
     for (int i = 0; i < nTramas; i++)
     {
 
+        if(fail == TRUE){
+            printf("NTramas: %d\n falhou aqui - %d\n", nTramas, i);
+        }
+
         unsigned char *data = stateMachine(fd, A_TRM, 0x00, I, size);
         currentN = data[1];
-
 
         if (currentN == n + 1)
         {
@@ -140,12 +143,10 @@ int llread(int fd)
         }
         else
         {
-            //printf("FALHOU CURRENTN\n");
-            if (fail == FALSE)
-            {
-                fail = TRUE;
-                i--;
-            }
+            printf("FALHOU CURRENTN - %d - I:  %d\n", currentN, i);
+            fail = TRUE;
+            i--;
+
         }
 
         if(currentN == 255){
