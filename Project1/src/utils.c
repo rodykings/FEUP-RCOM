@@ -59,6 +59,7 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
             }
             break;
         case FLAG_RCV:
+            counter = 0; 
             if (c == header)
             {
                 state = A_RCV;

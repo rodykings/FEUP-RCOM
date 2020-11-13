@@ -143,7 +143,6 @@ int llread(int fd)
         else
         {
             printf("FALHOU CURRENTN - %d - I:  %d\n", currentN, i);
-            fail = TRUE;
             i--;
 
         }
