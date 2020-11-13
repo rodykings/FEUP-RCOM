@@ -131,6 +131,17 @@ int llread(int fd)
                 printf("TRAMA ULTIMA - %d | SIZE: %d\n", data[1], cnt);
                 n = currentN;
             }
+            else if(*size>261){
+                int cnt = 0;
+                for (int d = 4; d < (*size) - 1; d++)
+                {
+                    cnt++;
+                    fileData[counter++] = data[d];
+                }
+                printf("TRAMA - %d | SIZE: %d\n", data[1], cnt);
+                fail = FALSE;
+                n = currentN;
+            }
             else
             {
                 printf("trama incorreta\n");
