@@ -165,7 +165,6 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
 
             info[counter++] = FLAG;
 
-
             alarmFlag = FALSE;
             alarm(TIMEOUT);
 
@@ -204,6 +203,8 @@ void sendData(int fd, unsigned char *buffer, int size, int seqN)
             (seqN == 0) ? seqN++ : seqN--;
 
         } while (alarmFlag && numRetry < MAX_RETRY);
+        if (alarmFlag && numRetry == MAX_RETRY)
+            break;
 
         (seqN == 0) ? seqN++ : seqN--;
     }

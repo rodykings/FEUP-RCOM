@@ -157,21 +157,21 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                         if (seqN == 0)
                         {
                             positiveACK = 0x05;
-                            negativeACK = 0x01;
+                       //     negativeACK = 0x01;
                         }
                         else
                         {
                             positiveACK = 0x85;
-                            negativeACK = 0x81;
+                       //     negativeACK = 0x81;
                         }
-                        if (counter <= 255)
+                      /*  if (counter <= 255)
                         {
                             sendControlMsg(fd, A_TRM, negativeACK);
                         }
                         else
-                        {
+                        {*/
                             sendControlMsg(fd, A_TRM, positiveACK);
-                        }
+                        //}
                     }
                     else
                     {
