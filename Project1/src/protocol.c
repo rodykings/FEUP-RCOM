@@ -144,10 +144,11 @@ int llread(int fd)
             }
             else
             {
-                printf("%d", *size);
-                printf("trama incorreta\n");
+                printf("%d\n", *size);
+                printf("trama incorreta com i = %d\n", i);
                 sendControlMsg(fd, A_TRM, 0x01);
                 i--;
+                printf("Diminui i: %d\n", i);
             }
         }else if(currentN == n){//duplicado
             printf("RECEBI DUPLICADO\n");
