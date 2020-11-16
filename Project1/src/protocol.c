@@ -105,6 +105,7 @@ int llread(int fd)
 
         unsigned char *data = stateMachine(fd, A_TRM, 0x00, I, size);
         currentN = data[1];
+        
 
         if (currentN == n + 1)
         {
@@ -157,7 +158,11 @@ int llread(int fd)
         }
         else
         {
+            //aqui o current está a chegar a 0
+            //pois, mas como? onde é que ele está a fazer esse reset? 
+            
             printf("FALHOU CURRENTN - %d - I:  %d\n", currentN, i);
+            printf("%s\n", data);
             i--;
 
         }
