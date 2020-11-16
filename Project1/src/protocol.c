@@ -146,7 +146,7 @@ int llread(int fd)
             {
                 printf("%d\n", *size);
                 printf("trama incorreta com i = %d\n", i);
-                sendControlMsg(fd, A_TRM, 0x01);
+              //  sendControlMsg(fd, A_TRM, 0x01);
                 i--;
                 printf("Diminui i: %d\n", i);
             }
