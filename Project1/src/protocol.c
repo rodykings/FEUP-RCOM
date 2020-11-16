@@ -151,8 +151,9 @@ int llread(int fd)
                 printf("Diminui i: %d\n", i);
             }
         }else if(currentN == n){//duplicado
-            printf("RECEBI DUPLICADO\n");
+            printf("RECEBI DUPLICADO com i = %d\n", i);
             i--;
+            printf("Diminui i: %d\n", i);
         }
         else
         {
