@@ -90,11 +90,11 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
                         return res;
                     }
                     //REJ
-                    else if (c == 0x81 || c == 0x01)
-                    {
-                        res[0] = 0x1;
-                        return res;
-                    }
+                    // else if (c == 0x81 || c == 0x01)
+                    // {
+                    //     res[0] = 0x1;
+                    //     return res;
+                    // }
                     else
                     {
                         res[0] = 0x0;
@@ -144,49 +144,49 @@ unsigned char *stateMachine(int fd, unsigned char header, char controlField, int
 
                     message = destuffingData(message, size);
 
-                    unsigned char bcc2 = message[*size - 1];
+                    // unsigned char bcc2 = message[*size - 1];
 
-                    int sizeBcc = *size - 1;
-                    unsigned char calcBcc2 = calculateBCC2(message, sizeBcc);
+                    // int sizeBcc = *size - 1;
+                    // unsigned char calcBcc2 = calculateBCC2(message, sizeBcc);
 
                     unsigned char positiveACK; // R0000101 -> 0 ou 1
                     unsigned char negativeACK; // R0000001 -> 0 ou 1
-                    if (bcc2 == calcBcc2)
-                    {
+                                               //    if (bcc2 == calcBcc2)
+                                               //   {
 
-                        if (seqN == 0)
-                        {
-                            positiveACK = 0x05;
-                       //     negativeACK = 0x01;
-                        }
-                        else
-                        {
-                            positiveACK = 0x85;
-                       //     negativeACK = 0x81;
-                        }
-                      /*  if (counter <= 255)
+                    if (seqN == 0)
+                    {
+                        positiveACK = 0x05;
+                        //     negativeACK = 0x01;
+                    }
+                    else
+                    {
+                        positiveACK = 0x85;
+                        //     negativeACK = 0x81;
+                    }
+                    /*  if (counter <= 255)
                         {
                             sendControlMsg(fd, A_TRM, negativeACK);
                         }
                         else
                         {*/
-                            sendControlMsg(fd, A_TRM, positiveACK);
-                        //}
-                    }
-                    else
-                    {
+                    sendControlMsg(fd, A_TRM, positiveACK);
+                    //}
+                    // }
+                    // else
+                    // {
 
-                        if (seqN == 0)
-                        {
-                            negativeACK = 0x01;
-                        }
-                        else
-                        {
-                            negativeACK = 0x81;
-                        }
-                        sendControlMsg(fd, A_TRM, negativeACK);
-                        printf("Enviei REJ\n");
-                    }
+                    //     if (seqN == 0)
+                    //     {
+                    //         negativeACK = 0x01;
+                    //     }
+                    //     else
+                    //     {
+                    //         negativeACK = 0x81;
+                    //     }
+                    //     sendControlMsg(fd, A_TRM, negativeACK);
+                    //     printf("Enviei REJ\n");
+                    // }
                 }
                 state = STOP;
             }
