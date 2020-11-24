@@ -1,4 +1,5 @@
 #include "protocol.h"
+#include <time.h>
 
 int main(int argc, char **argv)
 {
@@ -47,6 +48,8 @@ int main(int argc, char **argv)
     if (llopen(fd, status) == -1)
         return -1;
 
+    clock_t start = clock();
+    /*Do something*/
     switch (status)
     {
     case TRANSMITTER:
@@ -60,6 +63,10 @@ int main(int argc, char **argv)
         return -1;
         break;
     }
+    clock_t end = clock();
+    float seconds = (float)(end - start) / CLOCKS_PER_SEC;
+
+    printf("\nTime spent: %f\n", seconds);
 
     llclose(fd, status);
 
