@@ -79,11 +79,12 @@ int llread(int fd)
     fileInfo dataInfo = receiveControlPackage(fd);
 
     int nTramas = dataInfo.size / 256;
-    
+
     int l1 = dataInfo.size / 256;
     int l2 = dataInfo.size % 256;
 
-    if(l2!=0){
+    if (l2 != 0)
+    {
         nTramas++;
     }
 
@@ -99,13 +100,13 @@ int llread(int fd)
     for (int i = 0; i < nTramas; i++)
     {
 
-        if(fail == TRUE){
+        if (fail == TRUE)
+        {
             printf("NTramas: %d\n falhou aqui - %d\n", nTramas, i);
         }
 
         unsigned char *data = stateMachine(fd, A_TRM, 0x00, I, size);
         currentN = data[1];
-        
 
         if (currentN == n + 1)
         {
@@ -121,7 +122,7 @@ int llread(int fd)
                 fail = FALSE;
                 n = currentN;
             }
-            else if (i == nTramas - 1 && (*size >= l2 && *size <= l2+5))
+            else if (i == nTramas - 1 && (*size >= l2 && *size <= l2 + 5))
             {
                 int cnt = 0;
                 for (int d = 4; d < (*size) - 1; d++)
@@ -132,9 +133,10 @@ int llread(int fd)
                 printf("TRAMA ULTIMA - %d | SIZE: %d\n", data[1], cnt);
                 n = currentN;
             }
-            else if(*size>261){
+            else if (*size > 261)
+            {
                 int cnt = 0;
-                for (int d = (*size)-257; d < (*size) - 1; d++)
+                for (int d = (*size) - 257; d < (*size) - 1; d++)
                 {
                     cnt++;
                     fileData[counter++] = data[d];
@@ -147,27 +149,26 @@ int llread(int fd)
             {
                 printf("%d\n", *size);
                 printf("trama incorreta com i = %d\n", i);
-              //  sendControlMsg(fd, A_TRM, 0x01);
+                //  sendControlMsg(fd, A_TRM, 0x01);
                 i--;
                 printf("Diminui i: %d\n", i);
             }
-        }else if(currentN == n){//duplicado
+        }
+        else if (currentN == n)
+        { //duplicado
             printf("RECEBI DUPLICADO com i = %d\n", i);
             i--;
             printf("Diminui i: %d\n", i);
         }
         else
         {
-            //aqui o current está a chegar a 0
-            //pois, mas como? onde é que ele está a fazer esse reset? 
-            
             printf("FALHOU CURRENTN - %d - I:  %d\n", currentN, i);
             printf("%s\n", data);
             i--;
-
         }
 
-        if(currentN == 255){
+        if (currentN == 255)
+        {
             n = -1;
         }
     }

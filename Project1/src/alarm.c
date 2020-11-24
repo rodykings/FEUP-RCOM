@@ -6,5 +6,3 @@ void alarmHandler()
     alarmFlag = TRUE;
     numRetry++;
 }
-
-

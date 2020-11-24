@@ -23,7 +23,6 @@ extern int alarmFlag;
  */
 int setTransmitter(int fd);
 
-
 /**
  * @brief Send a control package
  * 

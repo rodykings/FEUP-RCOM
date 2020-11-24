@@ -9,9 +9,8 @@
 #include <strings.h>
 #include <string.h>
 
-#define I 1 
+#define I 1
 #define S 0
-
 
 #define FLAG 0x7E
 #define A_TRM 0x03
@@ -35,7 +34,8 @@
 
 struct termios oldtio, newtio;
 
-typedef enum {
+typedef enum
+{
     START,
     FLAG_RCV,
     A_RCV,
@@ -44,13 +44,11 @@ typedef enum {
     STOP
 } State_Machine;
 
-
-typedef struct {
-    unsigned char* filename;
+typedef struct
+{
+    unsigned char *filename;
     int size;
-}fileInfo;
-
-
+} fileInfo;
 
 /**
  * @brief Get file size
@@ -58,7 +56,7 @@ typedef struct {
  * @param file file descriptor
  * @return file size
  */
-int getFileSize(FILE* file);
+int getFileSize(FILE *file);
 
 /**
  * @brief Send Control Message
@@ -79,7 +77,7 @@ void sendControlMsg(int fd, unsigned char header, unsigned char controlField);
  * @param size size of message
  * @return pointer to data from message
  */
-unsigned char* stateMachine(int fd, unsigned char header, char controlField, int type, int* size);
+unsigned char *stateMachine(int fd, unsigned char header, char controlField, int type, int *size);
 
 /**
  * @brief Stuff Data
@@ -88,7 +86,7 @@ unsigned char* stateMachine(int fd, unsigned char header, char controlField, int
  * @param size size of buffer
  * @return stuffed data 
  */
-unsigned char* stuffingData(unsigned char* buffer, int* size);
+unsigned char *stuffingData(unsigned char *buffer, int *size);
 
 /**
  * @brief Destuff Data
@@ -97,8 +95,7 @@ unsigned char* stuffingData(unsigned char* buffer, int* size);
  * @param size size of buffer
  * @return destuffed data
  */
-unsigned char* destuffingData(unsigned char *buffer, int *size);
-
+unsigned char *destuffingData(unsigned char *buffer, int *size);
 
 /**
  * @brief Calculate BCC2

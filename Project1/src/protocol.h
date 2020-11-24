@@ -15,7 +15,6 @@
  */
 int llopen(int fd, int status);
 
-
 /**
  * @brief Write to Serial Port
  * 
@@ -24,8 +23,7 @@ int llopen(int fd, int status);
  * @param filename filename
  * @return execution status
  */
-int llwrite(int fd, FILE* file, char* filename);
-
+int llwrite(int fd, FILE *file, char *filename);
 
 /**
  * @brief Read from Serial Port
@@ -34,7 +32,6 @@ int llwrite(int fd, FILE* file, char* filename);
  * @return execution status
  */
 int llread(int fd);
-
 
 /**
  * @brief Close connection

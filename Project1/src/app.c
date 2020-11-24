@@ -18,8 +18,6 @@ int main(int argc, char **argv)
         printf("\tRECEIVER: ./app /dev/sstyS1 receive\n");
         return -1;
     }
-    // ./app /dev/sttyS0 send "path"
-    // ./app /dev/sstyS1 receive
 
     /*
     Open serial port device for reading and writing and not as controlling tty
@@ -46,21 +44,21 @@ int main(int argc, char **argv)
         }
     }
 
-    if(llopen(fd, status)==-1) 
+    if (llopen(fd, status) == -1)
         return -1;
 
     switch (status)
     {
-        case TRANSMITTER :
-            llwrite(fd, file, argv[3]);
-            break;
-        case RECEIVER:
-            llread(fd); 
-            break;
+    case TRANSMITTER:
+        llwrite(fd, file, argv[3]);
+        break;
+    case RECEIVER:
+        llread(fd);
+        break;
 
-        default:
-            return -1;
-            break;
+    default:
+        return -1;
+        break;
     }
 
     llclose(fd, status);

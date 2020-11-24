@@ -104,7 +104,6 @@ unsigned char *generateControlPackage(int fileSize, unsigned char *fileName, int
 
 void sendData(int fd, unsigned char *buffer, int size, int seqN)
 {
-
     //Cálculo nr tramas
     int nTramas;
 

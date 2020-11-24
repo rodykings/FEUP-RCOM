@@ -239,7 +239,6 @@ unsigned char calculateBCC2(const unsigned char *buffer, unsigned int size)
     return bcc2;
 }
 
-//Ao passarmos um buffer unstuffed e o seu tamanho calcula tamanho do bufferStuffed
 int calculateStuffedSize(unsigned char *buffer, int size)
 {
     int counter = 0;

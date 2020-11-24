@@ -60,13 +60,12 @@ int checkControlPackage(unsigned char *controlPackage, int *size, fileInfo *file
 
 void createFile(fileInfo info, unsigned char *fileData)
 {
-
-    char path[9+strlen(info.filename)];
+    char path[9 + strlen(info.filename)];
     strcpy(path, "received_");
     strcat(path, info.filename);
     printf("PATH: %s\n", path);
     FILE *fp = fopen(path, "wb+");
-    
+
     fwrite((void *)fileData, 1, info.size, fp);
     fclose(fp);
 }

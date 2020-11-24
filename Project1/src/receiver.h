@@ -24,7 +24,7 @@ fileInfo receiveControlPackage(int fd);
  * @param fileinfo file information
  * @return control bit (2 or 3)
  */
-int checkControlPackage(unsigned char*controlPackage, int*size, fileInfo* fileinfo);
+int checkControlPackage(unsigned char *controlPackage, int *size, fileInfo *fileinfo);
 
 /**
  * @brief Create a file and write
@@ -32,7 +32,7 @@ int checkControlPackage(unsigned char*controlPackage, int*size, fileInfo* filein
  * @param info file info
  * @param fileData buffer with file data
  */
-void createFile(fileInfo info, unsigned char* fileData);
+void createFile(fileInfo info, unsigned char *fileData);
 
 /**
  * @brief Disconnect receiver
