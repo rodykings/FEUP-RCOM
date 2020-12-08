@@ -5,6 +5,8 @@
 
 int main(int argc, char *argv[])
 {
+    char buffer[MAX_SIZE];
+
     if (argc > 4 || argc < 2)
     {
         printf("Usage: %s ftp://[<user>:<password>@]<host>/<url-path>\n", argv[0]);
@@ -13,7 +15,8 @@ int main(int argc, char *argv[])
 
     //Parse arguments
     struct arguments args;
-    if (parseURL(argv[1], &args) != 0) {
+    if (parseURL(argv[1], &args) != 0)
+    {
         return -1;
     }
 
@@ -28,12 +31,25 @@ int main(int argc, char *argv[])
 
     printf("IP Address: %s\n", ip_address);
 
-
     //Create and open socket
-    if(open_socket(21, ip_address)<0){
+    int sockfd = open_socket(21,ip_address);
+    if (sockfd < 0)
+    {
         printf("Error opening socket!\n");
         return -1;
     }
+
+    if (read_from_socket(sockfd, buffer, sizeof(buffer)))
+    {
+        perror("ftp_read_from_socket()");
+        return -1;
+    }
+
+    if(login(sockfd, args.user, args.password)){
+        perror("login error");
+        return -1;
+    }
+
 
     return 0;
 }

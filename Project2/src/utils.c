@@ -52,7 +52,7 @@ int parseURL(char *complete_url, struct arguments *args)
     else
     {
         memset(args->user, 0, sizeof(args->user));
-        strcpy(args->user, &token[2]);
+        strcpy(args->user, &token[0]);
 
         //read passowrd
         token = strtok(NULL, "@");
