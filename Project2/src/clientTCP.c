@@ -83,21 +83,20 @@ int login(int sockfd, char *user, char *password)
 
 	char anonymous[10] = "anonymous";
 
-	if(strcmp(user, anonymous)){
-		sprintf(buffer, "PASS %s\r\n", password);
+	sprintf(buffer, "PASS %s\r\n", password);
 
-		if (write_to_socket(sockfd, buffer, strlen(buffer)))
-		{
-			printf("ERROR: TCP send fail\n");
-			return -1;
-		}
-
-		if (read_from_socket(sockfd, buffer, sizeof(buffer)))
-		{
-			printf("Access denied: failed reading from server!\n");
-			return -1;
-		}
+	if (write_to_socket(sockfd, buffer, strlen(buffer)))
+	{
+		printf("ERROR: TCP send fail\n");
+		return -1;
 	}
+
+	if (read_from_socket(sockfd, buffer, sizeof(buffer)))
+	{
+		printf("Access denied: failed reading from server!\n");
+		return -1;
+	}
+
 	return 0;
 }
 
