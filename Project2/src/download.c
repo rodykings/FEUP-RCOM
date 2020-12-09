@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     printf("IP Address: %s\n", ip_address);
 
     //Create and open socket
-    int sockfd = open_socket(21,ip_address);
+    int sockfd = open_socket(21, ip_address);
     if (sockfd < 0)
     {
         printf("Error opening socket!\n");
@@ -45,11 +45,17 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if(login(sockfd, args.user, args.password)){
+    if (login(sockfd, args.user, args.password))
+    {
         perror("login error");
         return -1;
     }
 
+    if (passive_mode(sockfd))
+    {
+        perror("passive mode");
+        return -1;
+    }
 
     return 0;
 }

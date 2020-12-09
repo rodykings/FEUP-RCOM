@@ -2,3 +2,4 @@ app
 *.o
 received_*
 download
+.vscode

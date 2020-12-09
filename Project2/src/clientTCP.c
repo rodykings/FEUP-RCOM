@@ -78,11 +78,7 @@ int login(int sockfd, char *user, char *password)
 		return -1;
 	}
 
-	//
 	memset(buffer, 0, sizeof(buffer));
-
-	char anonymous[10] = "anonymous";
-
 	sprintf(buffer, "PASS %s\r\n", password);
 
 	if (write_to_socket(sockfd, buffer, strlen(buffer)))
@@ -97,6 +93,44 @@ int login(int sockfd, char *user, char *password)
 		return -1;
 	}
 
+	return 0;
+}
+
+int passive_mode(int sockfd)
+{
+	char passive[MAX_SIZE] = "PASV\r\n";
+	char ip_address[MAX_SIZE];
+	int port;
+
+	if (write_to_socket(sockfd, passive, strlen(passive)))
+	{
+		printf("Failed entering passive mode!\n");
+		return -1;
+	}
+
+	if (read_from_socket(sockfd, passive, sizeof(passive)))
+	{
+		printf("Not getting response entering in passive mode!\n");
+		return -1;
+	}
+
+	if (parse_passive_response(passive, ip_address, &port))
+	{
+		perror("parse_passive_response failed!\n");
+		return -1;
+	}
+
+	printf("IP Address: %s\n", ip_address);
+	printf("Port: %d\n", port);
+
+	sockfd = open_socket(port, ip_address);
+	if (sockfd < 0)
+	{
+		printf("Error opening socket!\n");
+		return -1;
+	}
+
+    printf("Entered passive mode successfully.\n");
 	return 0;
 }
 

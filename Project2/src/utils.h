@@ -27,3 +27,4 @@ struct arguments {
 int verify_ftp(const char *str);
 int parseURL(char *complete_url, struct arguments *args);
 char *get_ip_address(char *host_name);
+int parse_passive_response(char *response, char *ip_address, int *port);

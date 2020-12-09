@@ -129,3 +129,23 @@ char *get_ip_address(char *host_name)
 
     return inet_ntoa(*((struct in_addr *)h->h_addr_list[0]));
 }
+
+int parse_passive_response(char *response, char *ip_address, int *port)
+{
+    int h1, h2, h3, h4, p1, p2;
+
+    //227 Entering Passive Mode (h1,h2,h3,h4,p1,p2).
+    if (sscanf(response, "227 Entering Passive Mode (%d,%d,%d,%d,%d,%d)", &h1, &h2, &h3, &h4, &p1, &p2) < 0)
+    {
+        perror("Passive response!\n");
+        return 1;
+    }
+
+    //Create new address
+    sprintf(ip_address, "%d.%d.%d.%d", h1, h2, h3, h4);
+
+    //Calculate new port
+    *port = p1 * 256 + p2;
+
+    return 0;
+}
