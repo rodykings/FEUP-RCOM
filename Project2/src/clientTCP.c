@@ -134,9 +134,80 @@ int passive_mode(int sockfd)
 	return 0;
 }
 
+int retrieve(int sockfd, char*file){
+	
+	char retr[1024];
+
+	sprintf(retr, "RETR %s\r\n", file);
+	if (write_to_socket(sockfd, retr, strlen(retr))) {
+		printf("Error sending filename\n");
+		return 1;
+	}
+
+	if (read_from_socket(sockfd, retr, sizeof(retr))) {
+		printf("Filename not received!\n");
+		return 1;
+	}
+
+	return 0;
+
+}
+
+
+int download(int sockfd, char* filename){
+	FILE* file;
+	int bytes;
+
+	if (!(file = fopen(filename, "w"))) {
+		printf("ERROR: Cannot open file.\n");
+		return 1;
+	}
+
+	char buf[1024];
+	while ((bytes = read(sockfd, buf, sizeof(buf)))) {
+		if (bytes < 0) {
+			printf("ERROR: Nothing was received from data socket fd.\n");
+			return 1;
+		}
+
+		if ((bytes = fwrite(buf, bytes, 1, file)) < 0) {
+			printf("ERROR: Cannot write data in file.\n");
+			return 1;
+		}
+	}
+
+	fclose(file);
+	close(sockfd);
+
+	return 0;
+
+}
+
+
+
 int close_socket(int sockfd)
 {
-	close(sockfd);
+	char buffer[MAX_SIZE];
+
+
+	if (read_from_socket(sockfd, buffer, sizeof(buffer))) {
+		printf("Can't disconnect.\n");
+		return 1;
+	}
+
+	
+	sprintf(buffer, "QUIT\r\n");
+
+	if (write_to_socket(sockfd, buffer, strlen(buffer)))
+	{
+		printf("Failed disconnection!\n");
+		return -1;
+	}
+
+	if(sockfd)
+		close(sockfd);
+
+	
 	return 0;
 }
 

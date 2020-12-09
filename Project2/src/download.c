@@ -57,5 +57,23 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    if (retrieve(sockfd, args.fileName))
+    {
+        perror("retrieve");
+        return -1;
+    }
+
+
+    if(download(sockfd, args.fileName)){
+        perror("download");
+        return -1;
+    }
+
+
+    if(close_socket(sockfd)){
+        perror("disconnect");
+        return -1;
+    }
+
     return 0;
 }
