@@ -130,72 +130,109 @@ int passive_mode(int sockfd)
 		return -1;
 	}
 
-    printf("Entered passive mode successfully.\n");
+	printf("Entered passive mode successfully.\n");
 	return 0;
 }
 
-int retrieve(int sockfd, char*file){
-	
-	char retr[1024];
+int change_directory(int sockfd, char *path)
+{
+	char change_directory[MAX_SIZE];
+
+	sprintf(change_directory, "CWD %s\r\n", path);
+	if (write_to_socket(sockfd, change_directory, strlen(change_directory)))
+	{
+		printf("Failed sending path to CWD.\n");
+		return -1;
+	}
+
+	if (read_from_socket(sockfd, change_directory, sizeof(change_directory)))
+	{
+		printf("Failed changing directory.\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+int retrieve(int sockfd, char *file)
+{
+	char retr[MAX_SIZE];
 
 	sprintf(retr, "RETR %s\r\n", file);
-	if (write_to_socket(sockfd, retr, strlen(retr))) {
+	if (write_to_socket(sockfd, retr, strlen(retr)))
+	{
 		printf("Error sending filename\n");
-		return 1;
+		return -1;
 	}
 
-	if (read_from_socket(sockfd, retr, sizeof(retr))) {
+	if (read_from_socket(sockfd, retr, sizeof(retr)))
+	{
 		printf("Filename not received!\n");
-		return 1;
+		return -1;
 	}
 
 	return 0;
-
 }
 
-
-int download(int sockfd, char* filename){
-	FILE* file;
+int download(int sockfd, char *filename)
+{
+	FILE *file;
 	int bytes;
 
-	if (!(file = fopen(filename, "w"))) {
+	if (!(file = fopen(filename, "w")))
+	{
 		printf("ERROR: Cannot open file.\n");
 		return 1;
 	}
 
 	char buf[1024];
-	while ((bytes = read(sockfd, buf, sizeof(buf)))) {
-		if (bytes < 0) {
+	printf("Starting to download file with name %s\n", filename);
+	while ((bytes = read(sockfd, buf, sizeof(buf))))
+	{
+		if (bytes < 0)
+		{
 			printf("ERROR: Nothing was received from data socket fd.\n");
 			return 1;
 		}
+		else
+		{
+			printf("SIM1!\n");
+		}
 
-		if ((bytes = fwrite(buf, bytes, 1, file)) < 0) {
+		if ((bytes = fwrite(buf, bytes, 1, file)) < 0)
+		{
 			printf("ERROR: Cannot write data in file.\n");
 			return 1;
 		}
+		else
+		{
+			printf("SIM2!\n");
+		}
+	}
+	if (fclose(file) < 0)
+	{
+		printf("Error closing file\n");
+		return -1;
+	}
+	else{
+		printf("SIM3!\n");
 	}
 
-	fclose(file);
 	close(sockfd);
 
 	return 0;
-
 }
-
-
 
 int close_socket(int sockfd)
 {
 	char buffer[MAX_SIZE];
 
-
-	if (read_from_socket(sockfd, buffer, sizeof(buffer))) {
+	if (read_from_socket(sockfd, buffer, sizeof(buffer)))
+	{
 		printf("Can't disconnect.\n");
 		return 1;
 	}
 
-	
 	sprintf(buffer, "QUIT\r\n");
 
 	if (write_to_socket(sockfd, buffer, strlen(buffer)))
@@ -204,10 +241,9 @@ int close_socket(int sockfd)
 		return -1;
 	}
 
-	if(sockfd)
+	if (sockfd)
 		close(sockfd);
 
-	
 	return 0;
 }
 

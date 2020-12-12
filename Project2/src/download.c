@@ -51,6 +51,15 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    if (strlen(args.filePath) > 0)
+    {
+        if (change_directory(sockfd, args.filePath))
+        {
+            perror("change directory");
+            return -1;
+        }
+    }
+
     if (passive_mode(sockfd))
     {
         perror("passive mode");
@@ -63,14 +72,14 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-
-    if(download(sockfd, args.fileName)){
+    if (download(sockfd, args.fileName))
+    {
         perror("download");
         return -1;
     }
 
-
-    if(close_socket(sockfd)){
+    if (close_socket(sockfd))
+    {
         perror("disconnect");
         return -1;
     }

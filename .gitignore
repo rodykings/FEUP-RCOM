@@ -3,3 +3,4 @@ app
 received_*
 download
 .vscode
+*.txt
