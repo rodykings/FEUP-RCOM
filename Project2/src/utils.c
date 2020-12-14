@@ -107,6 +107,15 @@ int parseURL(char *complete_url, struct arguments *args)
     return 0;
 }
 
+void printInfo(struct arguments *args)
+{
+    printf("User: %s\n", args->user);
+    printf("Password: %s\n", args->password);
+    printf("Host: %s\n", args->host);
+    printf("File Path: %s\n", args->filePath);
+    printf("File Name: %s\n", args->fileName);
+}
+
 char *get_ip_address(char *host_name)
 {
     struct hostent *h;

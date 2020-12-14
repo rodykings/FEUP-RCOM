@@ -7,9 +7,9 @@ int main(int argc, char *argv[])
 {
     char buffer[MAX_SIZE];
 
-    if (argc > 4 || argc < 2)
+    if (argc != 2)
     {
-        printf("Usage: %s ftp://[<user>:<password>@]<host>/<url-path>\n", argv[0]);
+        printf("Usage: ./download ftp://[<user>:<password>@]<host>/<url-path>\n");
         return -1;
     }
 
@@ -20,11 +20,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    printf("User: %s\n", args.user);
-    printf("Password: %s\n", args.password);
-    printf("Host: %s\n", args.host);
-    printf("File Path: %s\n", args.filePath);
-    printf("File Name: %s\n", args.fileName);
+    printInfo(&args);
 
     char *ip_address;
     ip_address = get_ip_address(args.host);
@@ -32,20 +28,23 @@ int main(int argc, char *argv[])
     printf("IP Address: %s\n", ip_address);
 
     //Create and open socket
-    int sockfd = open_socket(21, ip_address);
-    if (sockfd < 0)
+    struct ftp ftp_connection;
+
+    ftp_connection.sockfd = open_socket(21, ip_address);
+
+    if (ftp_connection.sockfd < 0)
     {
         printf("Error opening socket!\n");
         return -1;
     }
 
-    if (read_from_socket(sockfd, buffer, sizeof(buffer)))
+    if (read_from_socket(ftp_connection.sockfd, buffer, sizeof(buffer)))
     {
         perror("ftp_read_from_socket()");
         return -1;
     }
 
-    if (login(sockfd, args.user, args.password))
+    if (login(&ftp_connection, args.user, args.password))
     {
         perror("login error");
         return -1;
@@ -53,33 +52,32 @@ int main(int argc, char *argv[])
 
     if (strlen(args.filePath) > 0)
     {
-        if (change_directory(sockfd, args.filePath))
+        if (change_directory(&ftp_connection, args.filePath))
         {
             perror("change directory");
             return -1;
         }
     }
 
-    int datafd = passive_mode(sockfd);
-    if (datafd < 0)
+    if (passive_mode(&ftp_connection))
     {
         perror("passive mode");
         return -1;
     }
 
-    if (retrieve(sockfd, args.fileName))
+    if (retrieve(&ftp_connection, args.fileName))
     {
         perror("retrieve");
         return -1;
     }
 
-    if (download(datafd, args.fileName))
+    if (download(&ftp_connection, args.fileName))
     {
         perror("download");
         return -1;
     }
 
-    if (close_socket(sockfd))
+    if (close_socket(&ftp_connection))
     {
         perror("disconnect");
         return -1;
