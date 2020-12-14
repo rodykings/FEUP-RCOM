@@ -60,7 +60,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (passive_mode(sockfd))
+    int datafd = passive_mode(sockfd);
+    if (datafd < 0)
     {
         perror("passive mode");
         return -1;
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (download(sockfd, args.fileName))
+    if (download(datafd, args.fileName))
     {
         perror("download");
         return -1;
