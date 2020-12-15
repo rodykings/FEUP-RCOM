@@ -11,6 +11,7 @@
   » password: 8nortel
 
 - Criação das vlans (gtkterm):
+  
   » configure terminal
   
   » vlan 10 (vlan0)
