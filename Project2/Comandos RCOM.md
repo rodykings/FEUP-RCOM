@@ -173,3 +173,22 @@ IP: 172.16.11.1
 MAC: 00:21:5a:5a:7e:51
 
 
+`route -n` - verify the routes
+
+**ROUTES**
+
+***PC3***
+route add -net 172.16.11.0/24 gw 172.16.10.254
+
+***PC2***
+route add -net 172.16.10.0/24 gw 172.16.11.253
+
+***PC4***
+echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts48
+
+
+1. What routes are there in the tuxes? What are their meaning?
+
+- Networks (paths) that can reach
+
+--------
