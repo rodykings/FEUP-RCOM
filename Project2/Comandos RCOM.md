@@ -20,7 +20,7 @@
 
 IP: 172.16.10.1
 
-MAC: 
+MAC: 00:21:5a:5a:7d:16
 
 
 ***PC4***
@@ -31,7 +31,7 @@ MAC:
 
 IP: 172.16.10.254
 
-MAC: 
+MAC: 00:21:5a:5a:7b:3f
 
 ***PC3***
 
@@ -184,7 +184,8 @@ route add -net 172.16.11.0/24 gw 172.16.10.254
 route add -net 172.16.10.0/24 gw 172.16.11.253
 
 ***PC4***
-echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts48
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 
 
 1. What routes are there in the tuxes? What are their meaning?
@@ -192,3 +193,54 @@ echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts48
 - Networks (paths) that can reach
 
 --------
+
+
+-------------------EXPERIENCIA 4----------------
+
+ROUTER: 2 interfaces (Router FE0/0 e Router FE0/1)
+
+1. Ligar uma saída do router a uma porta do switch
+2. Ligar a outra saída do router ao lab network (P1.1)
+
+3. Adicionar router à vlan1
+
+---Restore router (tem de se mudar da porta do switch para a do router)---
+4. enable
+5. copy flash:gnu1-clean startup-config
+6. reload
+
+
+---Configuração do router---
+
+(no gtkterm com o router ligado)
+
+7. interface fastEthernet 0/0
+8. ip address 172.16.11.254 255.255.255.0 
+9. no shutdown
+10. exit
+11. show interface fastEthernet 0/0
+
+--------------------PASSOS A PARTIR DAQUI NAO TENHO A CERTEZA SE SAO NESTA ORDEM OU SE TEM DE SE FAZER ALGUMA COISA ANTES ---------------------
+
+
+***PC3***
+
+---definir tux4 como default router---
+12. route add default gw 172.16.10.254
+
+***PC2***
+
+---route para aceder a internet a partir de eth0 de router---
+13. route add -net 172.16.1.0/24 gw 172.16.11.254
+
+---definir RC como default router---
+14. route add default gw 172.16.11.254
+
+
+***PC4***
+
+---route para aceder a internet a partir de eth0 de router---
+15. route add -net 172.16.1.0/24 gw 172.16.11.254
+
+---definir RC como default router---
+16. route add default gw 172.16.11.254
