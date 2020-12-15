@@ -1,6 +1,7 @@
 **1. How to configure vlany0?**
 
 - Ligação ao switch
+  
   » Porta série /dev/ttyS0 em tuxy3, gtkterm
 
 - Aceder ao switch:
