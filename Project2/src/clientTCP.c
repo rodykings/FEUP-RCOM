@@ -96,6 +96,26 @@ int login(struct ftp *ftp_connection, char *user, char *password)
 	return 0;
 }
 
+int change_directory(struct ftp *ftp_connection, char *path)
+{
+	char change_directory[MAX_SIZE];
+
+	sprintf(change_directory, "CWD %s\r\n", path);
+	if (write_to_socket(ftp_connection->sockfd, change_directory, strlen(change_directory)))
+	{
+		printf("Failed sending path to CWD.\n");
+		return -1;
+	}
+
+	if (read_from_socket(ftp_connection->sockfd, change_directory, sizeof(change_directory)))
+	{
+		printf("Failed changing directory.\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 int passive_mode(struct ftp *ftp_connection)
 {
 	char passive[MAX_SIZE] = "PASV\r\n";
@@ -131,26 +151,6 @@ int passive_mode(struct ftp *ftp_connection)
 	}
 
 	printf("Entered passive mode successfully.\n");
-	return 0;
-}
-
-int change_directory(struct ftp *ftp_connection, char *path)
-{
-	char change_directory[MAX_SIZE];
-
-	sprintf(change_directory, "CWD %s\r\n", path);
-	if (write_to_socket(ftp_connection->sockfd, change_directory, strlen(change_directory)))
-	{
-		printf("Failed sending path to CWD.\n");
-		return -1;
-	}
-
-	if (read_from_socket(ftp_connection->sockfd, change_directory, sizeof(change_directory)))
-	{
-		printf("Failed changing directory.\n");
-		return -1;
-	}
-
 	return 0;
 }
 

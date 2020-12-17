@@ -2,7 +2,6 @@
 
 int verify_ftp(const char *str)
 {
-
     char *ftp_str = "ftp://";
     char aux[7];
 
