@@ -5,9 +5,9 @@ Assim, quando uma máquina tenta enviar um pacote a outra dentro da mesma rede l
 
 **2. What are the MAC and IP addresses of ARP packets and why?**
 
-Quando o tuxy3 tenta enviar um pacote ao tuxy4, como a entrada da tabela ARP referente ao tuxy4 foi apagada, o tuxy3 não sabe qual é o endereço MAC associado ao endereço IP do tuxy4 (172.16.10.254). Deste modo, irá enviar um pacote ARP para toda a rede local, sendo que este pacote contém o seu endereço IP (172.16.10.1) e o seu endereço MAC (??). O endereço MAC do destinatário, sendo desconhecido, assume o valor de 00:00:00:00:00:00.
+Quando o tux3 tenta enviar um pacote ao tux4, como a entrada da tabela ARP referente ao tux4 foi apagada, o tux3 não sabe qual é o endereço MAC associado ao endereço IP do tux4 (172.16.10.254). Deste modo, irá enviar um pacote ARP para toda a rede local, sendo que este pacote contém o seu endereço IP (172.16.10.1) e o seu endereço MAC (??). O endereço MAC do destinatário, sendo desconhecido, assume o valor de 00:00:00:00:00:00.
 
-De seguida, o tuxy4 irá enviar um pacote ARP para o tuxy3, com o endereço MAC dele (??), e o seu endereço IP (172.16.10.254).
+De seguida, o tux4 irá enviar um pacote ARP para o tux3, com o endereço MAC dele (??), e o seu endereço IP (172.16.10.254).
 
 Portanto, pode-se concluir que cada pacote ARP contém campos para os endereços MAC e IP da máquina que envia, e para os endereços MAC e IP da máquina que recebe.
 
@@ -18,27 +18,27 @@ Este gera primeiro pacotes ARP para saber qual o endereço MAC do destinatário 
 
 **4. What are the MAC and IP addresses of the ping packets?**
 
-Quando é efetuado um ping do tuxy3 para o tuxy4, os endereços dos pacotes enviados são os seguintes:
+Quando é efetuado um ping do tux3 para o tux4, os endereços dos pacotes enviados são os seguintes:
 
-- Pacote request (de tuxy3 para tuxy4):
+- Pacote request (de tux3 para tux4):
 
-  - IP address da source: 172.16.10.1 (tuxy3)
+  - IP address da source: 172.16.10.1 (tux3)
 
-  - MAC address da source: ?? (tuxy3)
+  - MAC address da source: 00:21:5a:5a:7d:16 (tux3)
 
-  - IP address do destinatário: 172.16.10.254 (tuxy4)
+  - IP address do destinatário: 172.16.10.254 (tux4)
 
-  - MAC address do destinatário: ?? (tuxy4)
+  - MAC address do destinatário: 00:21:5a:5a:7b:3f (tux4)
 
-- Pacote reply (de tuxy4 para tuxy3):
+- Pacote reply (de tux4 para tux3):
 
-  - IP address da source: 172.16.10.254 (tuxy4)
+  - IP address da source: 172.16.10.254 (tux4)
 
-  - MAC address da source: ?? (tuxy4)
+  - MAC address da source: 00:21:5a:5a:7b:3f (tux4)
 
-  - IP address do destinatário: 172.16.10.1 (tuxy3)
+  - IP address do destinatário: 172.16.10.1 (tux3)
 
-  - MAC address do destinatário: ?? (tuxy3)
+  - MAC address do destinatário: 00:21:5a:5a:7d:16 (tux3)
 
 **5. How to determine if a receiving Ethernet frame is ARP, IP, ICMP?**
 

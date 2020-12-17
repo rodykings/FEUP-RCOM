@@ -30,18 +30,18 @@ GTKTERM:
 8. show interface fastEthernet 0/0
 
 9. interface fastEthernet 0/1
-10. ip address 172.16.1.19 255.255.255.0
+10. ip address 172.16.2.19 255.255.255.0
 11. no shutdown
 (12. ip nat outside)
 13. exit
 
 (
 
-> ip nat pool ovrld 172.16.1.19 172.16.1.19 prefix 24
+> ip nat pool ovrld 172.16.2.19 172.16.2.19 prefix 24
 > ip nat inside source list 1 pool ovrld overload
 > access-list 1 permit 172.16.10.0 0.0.0.7
 > access-list 1 permit 172.16.11.0 0.0.0.7
-> ip route 0.0.0.0 0.0.0.0 172.16.1.254
+> ip route 0.0.0.0 0.0.0.0 172.16.2.254
 > ip route 172.16.10.0 255.255.255.0 172.16.11.253
 > end
 
@@ -66,7 +66,7 @@ GTKTERM:
 
 
 
----ADICIONAR PORTAS DO TUX3 à vlan 0---
+---ADICIONAR PORTAS DO TUX4 à vlan 0---
 
 1. conf t
 2. interface fastEthernet 0/<'porta a que está ligado o cabo gnu14 Eth0'>
