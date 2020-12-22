@@ -136,7 +136,7 @@ int parse_passive_response(char *response, char *ip_address, int *port)
     if (sscanf(response, "227 Entering Passive Mode (%d,%d,%d,%d,%d,%d)", &h1, &h2, &h3, &h4, &p1, &p2) < 0)
     {
         perror("Passive response!\n");
-        return 1;
+        return -1;
     }
 
     //Create new address

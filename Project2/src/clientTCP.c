@@ -36,11 +36,11 @@ int write_to_socket(int fd, char *buf, size_t size)
 	if ((bytes = write(fd, buf, size)) <= 0)
 	{
 		printf("WARNING: Error sending to server.\n");
-		return 1;
+		return -1;
 	}
 
-	printf("Bytes send: %d\nInfo: %s\n", bytes, buf);
-
+	//printf("Bytes send: %d\nInfo: %s\n", bytes, buf);
+	printf("Send info: %s\n", buf);
 	return 0;
 }
 
@@ -182,7 +182,7 @@ int download(struct ftp *ftp_connection, char *filename)
 	if (!(file = fopen(filename, "w")))
 	{
 		printf("ERROR: Cannot open file.\n");
-		return 1;
+		return -1;
 	}
 
 	char buf[MAX_SIZE];
@@ -219,7 +219,7 @@ int close_socket(struct ftp *ftp_connection)
 	if (read_from_socket(ftp_connection->sockfd, buffer, sizeof(buffer)))
 	{
 		printf("Can't disconnect.\n");
-		return 1;
+		return -1;
 	}
 
 	sprintf(buffer, "QUIT\r\n");

@@ -28,6 +28,10 @@ struct arguments
     char fileName[MAX_SIZE];
 };
 
+/**
+ * @brief Struct to store sockets file descriptors
+ * 
+ */
 struct ftp
 {
     int sockfd;
@@ -57,5 +61,21 @@ int parseURL(char *complete_url, struct arguments *args);
  * @param args Struct with information
  */
 void printInfo(struct arguments *args);
+
+/**
+ * @brief Get the ip address of host
+ * 
+ * @param host_name Hostname
+ * @return char* IP address
+ */
 char *get_ip_address(char *host_name);
+
+/**
+ * @brief Send command to server in order to enter on passive mode
+ * 
+ * @param response Server response
+ * @param ip_address New ip address for passive mode
+ * @param port New port to open socket on passive mode
+ * @return int 0 in case of success or -1 if any error occurs
+ */
 int parse_passive_response(char *response, char *ip_address, int *port);
