@@ -74,7 +74,7 @@ int login(struct ftp *ftp_connection, char *user, char *password)
 
 	if (read_from_socket(ftp_connection->sockfd, buffer, sizeof(buffer)))
 	{
-		printf("Access denied: failed reading from server!\n");
+		printf("ERROR: Access denied- failed reading from server!\n");
 		return -1;
 	}
 
@@ -89,7 +89,7 @@ int login(struct ftp *ftp_connection, char *user, char *password)
 
 	if (read_from_socket(ftp_connection->sockfd, buffer, sizeof(buffer)))
 	{
-		printf("Access denied: failed reading from server!\n");
+		printf("ERROR: Access denied - failed reading from server!\n");
 		return -1;
 	}
 
@@ -103,13 +103,13 @@ int change_directory(struct ftp *ftp_connection, char *path)
 	sprintf(change_directory, "CWD %s\r\n", path);
 	if (write_to_socket(ftp_connection->sockfd, change_directory, strlen(change_directory)))
 	{
-		printf("Failed sending path to CWD.\n");
+		printf("ERROR: Failed sending path to CWD.\n");
 		return -1;
 	}
 
 	if (read_from_socket(ftp_connection->sockfd, change_directory, sizeof(change_directory)))
 	{
-		printf("Failed changing directory.\n");
+		printf("ERROR: Failed changing directory.\n");
 		return -1;
 	}
 
@@ -124,19 +124,19 @@ int passive_mode(struct ftp *ftp_connection)
 
 	if (write_to_socket(ftp_connection->sockfd, passive, strlen(passive)))
 	{
-		printf("Failed entering passive mode!\n");
+		printf("ERROR: Failed entering passive mode!\n");
 		return -1;
 	}
 
 	if (read_from_socket(ftp_connection->sockfd, passive, sizeof(passive)))
 	{
-		printf("Not getting response entering in passive mode!\n");
+		printf("ERROR: Not getting response entering in passive mode!\n");
 		return -1;
 	}
 
 	if (parse_passive_response(passive, ip_address, &port))
 	{
-		perror("parse_passive_response failed!\n");
+		perror("ERROR: Passive response failed!\n");
 		return -1;
 	}
 
@@ -146,11 +146,11 @@ int passive_mode(struct ftp *ftp_connection)
 	ftp_connection->datafd = open_socket(port, ip_address);
 	if (ftp_connection->datafd < 0)
 	{
-		printf("Error opening socket!\n");
+		printf("ERROR: Cannot open socket!\n");
 		return -1;
 	}
 
-	printf("Entered passive mode successfully.\n");
+	printf("Entered in passive mode successfully.\n");
 	return 0;
 }
 
@@ -161,13 +161,13 @@ int retrieve(struct ftp *ftp_connection, char *file)
 	sprintf(retr, "RETR %s\r\n", file);
 	if (write_to_socket(ftp_connection->sockfd, retr, strlen(retr)))
 	{
-		printf("Error sending filename\n");
+		printf("ERROR: Sending filename\n");
 		return -1;
 	}
 
 	if (read_from_socket(ftp_connection->sockfd, retr, sizeof(retr)))
 	{
-		printf("Filename not received!\n");
+		printf("ERROR: Filename not received!\n");
 		return -1;
 	}
 
@@ -203,7 +203,7 @@ int download(struct ftp *ftp_connection, char *filename)
 	}
 	if (fclose(file) < 0)
 	{
-		printf("Error closing file\n");
+		printf("ERROR: closing file\n");
 		return -1;
 	}
 
@@ -218,7 +218,7 @@ int close_socket(struct ftp *ftp_connection)
 
 	if (read_from_socket(ftp_connection->sockfd, buffer, sizeof(buffer)))
 	{
-		printf("Can't disconnect.\n");
+		printf("ERROR: Cannot disconnect.\n");
 		return -1;
 	}
 
@@ -226,7 +226,7 @@ int close_socket(struct ftp *ftp_connection)
 
 	if (write_to_socket(ftp_connection->sockfd, buffer, strlen(buffer)))
 	{
-		printf("Failed disconnection!\n");
+		printf("ERROR: Failed disconnection!\n");
 		return -1;
 	}
 

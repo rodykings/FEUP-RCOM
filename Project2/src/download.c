@@ -34,19 +34,19 @@ int main(int argc, char *argv[])
 
     if (ftp_connection.sockfd < 0)
     {
-        printf("Error opening socket!\n");
+        printf("ERROR: Opening socket!\n");
         return -1;
     }
 
     if (read_from_socket(ftp_connection.sockfd, buffer, sizeof(buffer)))
     {
-        perror("ftp_read_from_socket()");
+        perror("ERROR: Reading from socket!");
         return -1;
     }
 
     if (login(&ftp_connection, args.user, args.password))
     {
-        perror("login error");
+        perror("ERROR: Login!");
         return -1;
     }
 
@@ -54,32 +54,32 @@ int main(int argc, char *argv[])
     {
         if (change_directory(&ftp_connection, args.filePath))
         {
-            perror("change directory");
+            perror("ERROR: Changing directory");
             return -1;
         }
     }
 
     if (passive_mode(&ftp_connection))
     {
-        perror("passive mode");
+        perror("ERROR: Entering in passive mode!");
         return -1;
     }
 
     if (retrieve(&ftp_connection, args.fileName))
     {
-        perror("retrieve");
+        perror("ERROR: retrieve!");
         return -1;
     }
 
     if (download(&ftp_connection, args.fileName))
     {
-        perror("download");
+        perror("ERROR: download file!");
         return -1;
     }
 
     if (close_socket(&ftp_connection))
     {
-        perror("disconnect");
+        perror("ERROR: Disconnect!");
         return -1;
     }
 
